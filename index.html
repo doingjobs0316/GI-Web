@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Alumni Network Map</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,wght@0,400;0,600;0,800;0,900;1,400&display=swap">
+<style>
+/* Goldin Institute alumni network page: charcoal top nav, navy page, one large map with a white filter card and a row of
+   focus-area filters along its bottom edge, black footer. UI components are MUI (Material UI); the map is MapLibre GL with a
+   Protomaps (OpenStreetMap) basemap in Goldin navy. The palette is set out in the script (const C). Single dark look. */
+:root {
+  --page: #0A1216;     /* bg/page */
+  --raised: #191B1E;   /* bg/raised: top nav */
+  --surface: #FFFFFF;  /* cards */
+  --ink: #0A1216;      /* text on cards */
+  --muted: #8E9AA0;    /* muted on dark */
+  --accent: #F37023;
+  --accent-deep: #D65608;
+  color-scheme: dark;
+}
+body { background: var(--page); color: #fff; }
+.maplibregl-map{font:12px/20px Helvetica Neue,Arial,Helvetica,sans-serif;overflow:hidden;position:relative;-webkit-tap-highlight-color:rgb(0 0 0/0)}.maplibregl-canvas{left:0;position:absolute;top:0}.maplibregl-map:fullscreen{height:100%;width:100%}.maplibregl-ctrl-group button.maplibregl-ctrl-compass{touch-action:none}.maplibregl-canvas-container.maplibregl-interactive,.maplibregl-ctrl-group button.maplibregl-ctrl-compass{cursor:grab;-webkit-user-select:none;-moz-user-select:none;user-select:none}.maplibregl-canvas-container.maplibregl-interactive.maplibregl-track-pointer{cursor:pointer}.maplibregl-canvas-container.maplibregl-interactive:active,.maplibregl-ctrl-group button.maplibregl-ctrl-compass:active{cursor:grabbing}.maplibregl-canvas-container.maplibregl-touch-zoom-rotate,.maplibregl-canvas-container.maplibregl-touch-zoom-rotate .maplibregl-canvas{touch-action:pan-x pan-y}.maplibregl-canvas-container.maplibregl-touch-drag-pan,.maplibregl-canvas-container.maplibregl-touch-drag-pan .maplibregl-canvas{touch-action:pinch-zoom}.maplibregl-canvas-container.maplibregl-touch-zoom-rotate.maplibregl-touch-drag-pan,.maplibregl-canvas-container.maplibregl-touch-zoom-rotate.maplibregl-touch-drag-pan .maplibregl-canvas{touch-action:none}.maplibregl-canvas-container.maplibregl-touch-drag-pan.maplibregl-cooperative-gestures,.maplibregl-canvas-container.maplibregl-touch-drag-pan.maplibregl-cooperative-gestures .maplibregl-canvas{touch-action:pan-x pan-y}.maplibregl-ctrl-bottom-left,.maplibregl-ctrl-bottom-right,.maplibregl-ctrl-top-left,.maplibregl-ctrl-top-right{pointer-events:none;position:absolute;z-index:2}.maplibregl-ctrl-top-left{left:0;top:0}.maplibregl-ctrl-top-right{right:0;top:0}.maplibregl-ctrl-bottom-left{bottom:0;left:0}.maplibregl-ctrl-bottom-right{bottom:0;right:0}.maplibregl-ctrl{clear:both;pointer-events:auto;transform:translate(0)}.maplibregl-ctrl-top-left .maplibregl-ctrl{float:left;margin:10px 0 0 10px}.maplibregl-ctrl-top-right .maplibregl-ctrl{float:right;margin:10px 10px 0 0}.maplibregl-ctrl-bottom-left .maplibregl-ctrl{float:left;margin:0 0 10px 10px}.maplibregl-ctrl-bottom-right .maplibregl-ctrl{float:right;margin:0 10px 10px 0}.maplibregl-ctrl-group{background:#fff;border-radius:4px}.maplibregl-ctrl-group:not(:empty){box-shadow:0 0 0 2px rgba(0,0,0,.1)}@media (forced-colors:active){.maplibregl-ctrl-group:not(:empty){box-shadow:0 0 0 2px ButtonText}}.maplibregl-ctrl-group button{background-color:transparent;border:0;box-sizing:border-box;cursor:pointer;display:block;height:29px;outline:none;padding:0;width:29px}.maplibregl-ctrl-group button+button{border-top:1px solid #ddd}.maplibregl-ctrl button .maplibregl-ctrl-icon{background-position:50%;background-repeat:no-repeat;display:block;height:100%;width:100%}@media (forced-colors:active){.maplibregl-ctrl-icon{background-color:transparent}.maplibregl-ctrl-group button+button{border-top:1px solid ButtonText}}.maplibregl-ctrl button::-moz-focus-inner{border:0;padding:0}.maplibregl-ctrl-attrib-button:focus,.maplibregl-ctrl-group button:focus{box-shadow:0 0 2px 2px #0096ff}.maplibregl-ctrl button:disabled{cursor:not-allowed}.maplibregl-ctrl button:disabled .maplibregl-ctrl-icon{opacity:.25}@media (hover:hover){.maplibregl-ctrl button:not(:disabled):hover{background-color:rgba(0,0,0,.05)}}.maplibregl-ctrl button:not(:disabled):active{background-color:rgba(0,0,0,.05)}.maplibregl-ctrl-group button:focus:focus-visible{box-shadow:0 0 2px 2px #0096ff}.maplibregl-ctrl-group button:focus:not(:focus-visible){box-shadow:none}.maplibregl-ctrl-group button:focus:first-child{border-radius:4px 4px 0 0}.maplibregl-ctrl-group button:focus:last-child{border-radius:0 0 4px 4px}.maplibregl-ctrl-group button:focus:only-child{border-radius:inherit}.maplibregl-ctrl button.maplibregl-ctrl-zoom-out .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' fill='%23333' viewBox='0 0 29 29'%3E%3Cpath d='M10 13c-.75 0-1.5.75-1.5 1.5S9.25 16 10 16h9c.75 0 1.5-.75 1.5-1.5S19.75 13 19 13z'/%3E%3C/svg%3E")}.maplibregl-ctrl button.maplibregl-ctrl-zoom-in .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' fill='%23333' viewBox='0 0 29 29'%3E%3Cpath d='M14.5 8.5c-.75 0-1.5.75-1.5 1.5v3h-3c-.75 0-1.5.75-1.5 1.5S9.25 16 10 16h3v3c0 .75.75 1.5 1.5 1.5S16 19.75 16 19v-3h3c.75 0 1.5-.75 1.5-1.5S19.75 13 19 13h-3v-3c0-.75-.75-1.5-1.5-1.5'/%3E%3C/svg%3E")}@media (forced-colors:active){.maplibregl-ctrl button.maplibregl-ctrl-zoom-out .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' fill='%23fff' viewBox='0 0 29 29'%3E%3Cpath d='M10 13c-.75 0-1.5.75-1.5 1.5S9.25 16 10 16h9c.75 0 1.5-.75 1.5-1.5S19.75 13 19 13z'/%3E%3C/svg%3E")}.maplibregl-ctrl button.maplibregl-ctrl-zoom-in .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' fill='%23fff' viewBox='0 0 29 29'%3E%3Cpath d='M14.5 8.5c-.75 0-1.5.75-1.5 1.5v3h-3c-.75 0-1.5.75-1.5 1.5S9.25 16 10 16h3v3c0 .75.75 1.5 1.5 1.5S16 19.75 16 19v-3h3c.75 0 1.5-.75 1.5-1.5S19.75 13 19 13h-3v-3c0-.75-.75-1.5-1.5-1.5'/%3E%3C/svg%3E")}}@media (forced-colors:active) and (prefers-color-scheme:light){.maplibregl-ctrl button.maplibregl-ctrl-zoom-out .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' viewBox='0 0 29 29'%3E%3Cpath d='M10 13c-.75 0-1.5.75-1.5 1.5S9.25 16 10 16h9c.75 0 1.5-.75 1.5-1.5S19.75 13 19 13z'/%3E%3C/svg%3E")}.maplibregl-ctrl button.maplibregl-ctrl-zoom-in .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' viewBox='0 0 29 29'%3E%3Cpath d='M14.5 8.5c-.75 0-1.5.75-1.5 1.5v3h-3c-.75 0-1.5.75-1.5 1.5S9.25 16 10 16h3v3c0 .75.75 1.5 1.5 1.5S16 19.75 16 19v-3h3c.75 0 1.5-.75 1.5-1.5S19.75 13 19 13h-3v-3c0-.75-.75-1.5-1.5-1.5'/%3E%3C/svg%3E")}}.maplibregl-ctrl button.maplibregl-ctrl-fullscreen .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' fill='%23333' viewBox='0 0 29 29'%3E%3Cpath d='M24 16v5.5c0 1.75-.75 2.5-2.5 2.5H16v-1l3-1.5-4-5.5 1-1 5.5 4 1.5-3zM6 16l1.5 3 5.5-4 1 1-4 5.5 3 1.5v1H7.5C5.75 24 5 23.25 5 21.5V16zm7-11v1l-3 1.5 4 5.5-1 1-5.5-4L6 13H5V7.5C5 5.75 5.75 5 7.5 5zm11 2.5c0-1.75-.75-2.5-2.5-2.5H16v1l3 1.5-4 5.5 1 1 5.5-4 1.5 3h1z'/%3E%3C/svg%3E")}.maplibregl-ctrl button.maplibregl-ctrl-shrink .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' viewBox='0 0 29 29'%3E%3Cpath d='M18.5 16c-1.75 0-2.5.75-2.5 2.5V24h1l1.5-3 5.5 4 1-1-4-5.5 3-1.5v-1zM13 18.5c0-1.75-.75-2.5-2.5-2.5H5v1l3 1.5L4 24l1 1 5.5-4 1.5 3h1zm3-8c0 1.75.75 2.5 2.5 2.5H24v-1l-3-1.5L25 5l-1-1-5.5 4L17 5h-1zM10.5 13c1.75 0 2.5-.75 2.5-2.5V5h-1l-1.5 3L5 4 4 5l4 5.5L5 12v1z'/%3E%3C/svg%3E")}@media (forced-colors:active){.maplibregl-ctrl button.maplibregl-ctrl-fullscreen .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' fill='%23fff' viewBox='0 0 29 29'%3E%3Cpath d='M24 16v5.5c0 1.75-.75 2.5-2.5 2.5H16v-1l3-1.5-4-5.5 1-1 5.5 4 1.5-3zM6 16l1.5 3 5.5-4 1 1-4 5.5 3 1.5v1H7.5C5.75 24 5 23.25 5 21.5V16zm7-11v1l-3 1.5 4 5.5-1 1-5.5-4L6 13H5V7.5C5 5.75 5.75 5 7.5 5zm11 2.5c0-1.75-.75-2.5-2.5-2.5H16v1l3 1.5-4 5.5 1 1 5.5-4 1.5 3h1z'/%3E%3C/svg%3E")}.maplibregl-ctrl button.maplibregl-ctrl-shrink .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' fill='%23fff' viewBox='0 0 29 29'%3E%3Cpath d='M18.5 16c-1.75 0-2.5.75-2.5 2.5V24h1l1.5-3 5.5 4 1-1-4-5.5 3-1.5v-1zM13 18.5c0-1.75-.75-2.5-2.5-2.5H5v1l3 1.5L4 24l1 1 5.5-4 1.5 3h1zm3-8c0 1.75.75 2.5 2.5 2.5H24v-1l-3-1.5L25 5l-1-1-5.5 4L17 5h-1zM10.5 13c1.75 0 2.5-.75 2.5-2.5V5h-1l-1.5 3L5 4 4 5l4 5.5L5 12v1z'/%3E%3C/svg%3E")}}@media (forced-colors:active) and (prefers-color-scheme:light){.maplibregl-ctrl button.maplibregl-ctrl-fullscreen .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' viewBox='0 0 29 29'%3E%3Cpath d='M24 16v5.5c0 1.75-.75 2.5-2.5 2.5H16v-1l3-1.5-4-5.5 1-1 5.5 4 1.5-3zM6 16l1.5 3 5.5-4 1 1-4 5.5 3 1.5v1H7.5C5.75 24 5 23.25 5 21.5V16zm7-11v1l-3 1.5 4 5.5-1 1-5.5-4L6 13H5V7.5C5 5.75 5.75 5 7.5 5zm11 2.5c0-1.75-.75-2.5-2.5-2.5H16v1l3 1.5-4 5.5 1 1 5.5-4 1.5 3h1z'/%3E%3C/svg%3E")}.maplibregl-ctrl button.maplibregl-ctrl-shrink .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' viewBox='0 0 29 29'%3E%3Cpath d='M18.5 16c-1.75 0-2.5.75-2.5 2.5V24h1l1.5-3 5.5 4 1-1-4-5.5 3-1.5v-1zM13 18.5c0-1.75-.75-2.5-2.5-2.5H5v1l3 1.5L4 24l1 1 5.5-4 1.5 3h1zm3-8c0 1.75.75 2.5 2.5 2.5H24v-1l-3-1.5L25 5l-1-1-5.5 4L17 5h-1zM10.5 13c1.75 0 2.5-.75 2.5-2.5V5h-1l-1.5 3L5 4 4 5l4 5.5L5 12v1z'/%3E%3C/svg%3E")}}.maplibregl-ctrl button.maplibregl-ctrl-compass .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' fill='%23333' viewBox='0 0 29 29'%3E%3Cpath d='m10.5 14 4-8 4 8z'/%3E%3Cpath fill='%23ccc' d='m10.5 16 4 8 4-8z'/%3E%3C/svg%3E")}@media (forced-colors:active){.maplibregl-ctrl button.maplibregl-ctrl-compass .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' fill='%23fff' viewBox='0 0 29 29'%3E%3Cpath d='m10.5 14 4-8 4 8z'/%3E%3Cpath fill='%23ccc' d='m10.5 16 4 8 4-8z'/%3E%3C/svg%3E")}}@media (forced-colors:active) and (prefers-color-scheme:light){.maplibregl-ctrl button.maplibregl-ctrl-compass .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' viewBox='0 0 29 29'%3E%3Cpath d='m10.5 14 4-8 4 8z'/%3E%3Cpath fill='%23ccc' d='m10.5 16 4 8 4-8z'/%3E%3C/svg%3E")}}.maplibregl-ctrl button.maplibregl-ctrl-globe .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' fill='none' stroke='%23333' viewBox='0 0 22 22'%3E%3Ccircle cx='11' cy='11' r='8.5'/%3E%3Cpath d='M17.5 11c0 4.819-3.02 8.5-6.5 8.5S4.5 15.819 4.5 11 7.52 2.5 11 2.5s6.5 3.681 6.5 8.5Z'/%3E%3Cpath d='M13.5 11c0 2.447-.331 4.64-.853 6.206-.262.785-.562 1.384-.872 1.777-.314.399-.58.517-.775.517s-.461-.118-.775-.517c-.31-.393-.61-.992-.872-1.777C8.831 15.64 8.5 13.446 8.5 11s.331-4.64.853-6.206c.262-.785.562-1.384.872-1.777.314-.399.58-.517.775-.517s.461.118.775.517c.31.393.61.992.872 1.777.522 1.565.853 3.76.853 6.206Z'/%3E%3Cpath d='M11 7.5c-1.909 0-3.622-.166-4.845-.428-.616-.132-1.08-.283-1.379-.434a1.3 1.3 0 0 1-.224-.138q.07-.058.224-.138c.299-.151.763-.302 1.379-.434C7.378 5.666 9.091 5.5 11 5.5s3.622.166 4.845.428c.616.132 1.08.283 1.379.434.105.053.177.1.224.138q-.07.058-.224.138c-.299.151-.763.302-1.379.434-1.223.262-2.936.428-4.845.428ZM4.486 6.436ZM11 16.5c-1.909 0-3.622-.166-4.845-.428-.616-.132-1.08-.283-1.379-.434a1.3 1.3 0 0 1-.224-.138 1.3 1.3 0 0 1 .224-.138c.299-.151.763-.302 1.379-.434C7.378 14.666 9.091 14.5 11 14.5s3.622.166 4.845.428c.616.132 1.08.283 1.379.434.105.053.177.1.224.138a1.3 1.3 0 0 1-.224.138c-.299.151-.763.302-1.379.434-1.223.262-2.936.428-4.845.428Zm-6.514-1.064ZM11 12.5c-2.46 0-4.672-.222-6.255-.574-.796-.177-1.406-.38-1.805-.59a1.5 1.5 0 0 1-.39-.272.3.3 0 0 1-.047-.064.3.3 0 0 1 .048-.064c.066-.073.189-.167.389-.272.399-.21 1.009-.413 1.805-.59C6.328 9.722 8.54 9.5 11 9.5s4.672.222 6.256.574c.795.177 1.405.38 1.804.59.2.105.323.2.39.272a.3.3 0 0 1 .047.064.3.3 0 0 1-.048.064 1.4 1.4 0 0 1-.389.272c-.399.21-1.009.413-1.804.59-1.584.352-3.796.574-6.256.574Zm-8.501-1.51v.002zm0 .018v.002zm17.002.002v-.002zm0-.018v-.002z'/%3E%3C/svg%3E")}.maplibregl-ctrl button.maplibregl-ctrl-globe-enabled .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' fill='none' stroke='%2333b5e5' viewBox='0 0 22 22'%3E%3Ccircle cx='11' cy='11' r='8.5'/%3E%3Cpath d='M17.5 11c0 4.819-3.02 8.5-6.5 8.5S4.5 15.819 4.5 11 7.52 2.5 11 2.5s6.5 3.681 6.5 8.5Z'/%3E%3Cpath d='M13.5 11c0 2.447-.331 4.64-.853 6.206-.262.785-.562 1.384-.872 1.777-.314.399-.58.517-.775.517s-.461-.118-.775-.517c-.31-.393-.61-.992-.872-1.777C8.831 15.64 8.5 13.446 8.5 11s.331-4.64.853-6.206c.262-.785.562-1.384.872-1.777.314-.399.58-.517.775-.517s.461.118.775.517c.31.393.61.992.872 1.777.522 1.565.853 3.76.853 6.206Z'/%3E%3Cpath d='M11 7.5c-1.909 0-3.622-.166-4.845-.428-.616-.132-1.08-.283-1.379-.434a1.3 1.3 0 0 1-.224-.138q.07-.058.224-.138c.299-.151.763-.302 1.379-.434C7.378 5.666 9.091 5.5 11 5.5s3.622.166 4.845.428c.616.132 1.08.283 1.379.434.105.053.177.1.224.138q-.07.058-.224.138c-.299.151-.763.302-1.379.434-1.223.262-2.936.428-4.845.428ZM4.486 6.436ZM11 16.5c-1.909 0-3.622-.166-4.845-.428-.616-.132-1.08-.283-1.379-.434a1.3 1.3 0 0 1-.224-.138 1.3 1.3 0 0 1 .224-.138c.299-.151.763-.302 1.379-.434C7.378 14.666 9.091 14.5 11 14.5s3.622.166 4.845.428c.616.132 1.08.283 1.379.434.105.053.177.1.224.138a1.3 1.3 0 0 1-.224.138c-.299.151-.763.302-1.379.434-1.223.262-2.936.428-4.845.428Zm-6.514-1.064ZM11 12.5c-2.46 0-4.672-.222-6.255-.574-.796-.177-1.406-.38-1.805-.59a1.5 1.5 0 0 1-.39-.272.3.3 0 0 1-.047-.064.3.3 0 0 1 .048-.064c.066-.073.189-.167.389-.272.399-.21 1.009-.413 1.805-.59C6.328 9.722 8.54 9.5 11 9.5s4.672.222 6.256.574c.795.177 1.405.38 1.804.59.2.105.323.2.39.272a.3.3 0 0 1 .047.064.3.3 0 0 1-.048.064 1.4 1.4 0 0 1-.389.272c-.399.21-1.009.413-1.804.59-1.584.352-3.796.574-6.256.574Zm-8.501-1.51v.002zm0 .018v.002zm17.002.002v-.002zm0-.018v-.002z'/%3E%3C/svg%3E")}.maplibregl-ctrl button.maplibregl-ctrl-terrain .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' fill='%23333' viewBox='0 0 22 22'%3E%3Cpath d='m1.754 13.406 4.453-4.851 3.09 3.09 3.281 3.277.969-.969-3.309-3.312 3.844-4.121 6.148 6.886h1.082v-.855l-7.207-8.07-4.84 5.187L6.169 6.57l-5.48 5.965v.871ZM.688 16.844h20.625v1.375H.688Zm0 0'/%3E%3C/svg%3E")}.maplibregl-ctrl button.maplibregl-ctrl-terrain-enabled .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' fill='%2333b5e5' viewBox='0 0 22 22'%3E%3Cpath d='m1.754 13.406 4.453-4.851 3.09 3.09 3.281 3.277.969-.969-3.309-3.312 3.844-4.121 6.148 6.886h1.082v-.855l-7.207-8.07-4.84 5.187L6.169 6.57l-5.48 5.965v.871ZM.688 16.844h20.625v1.375H.688Zm0 0'/%3E%3C/svg%3E")}.maplibregl-ctrl button.maplibregl-ctrl-geolocate .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' fill='%23333' viewBox='0 0 20 20'%3E%3Cpath d='M10 4C9 4 9 5 9 5v.1A5 5 0 0 0 5.1 9H5s-1 0-1 1 1 1 1 1h.1A5 5 0 0 0 9 14.9v.1s0 1 1 1 1-1 1-1v-.1a5 5 0 0 0 3.9-3.9h.1s1 0 1-1-1-1-1-1h-.1A5 5 0 0 0 11 5.1V5s0-1-1-1m0 2.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 1 1 0-7'/%3E%3Ccircle cx='10' cy='10' r='2'/%3E%3C/svg%3E")}.maplibregl-ctrl button.maplibregl-ctrl-geolocate:disabled .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' fill='%23aaa' viewBox='0 0 20 20'%3E%3Cpath d='M10 4C9 4 9 5 9 5v.1A5 5 0 0 0 5.1 9H5s-1 0-1 1 1 1 1 1h.1A5 5 0 0 0 9 14.9v.1s0 1 1 1 1-1 1-1v-.1a5 5 0 0 0 3.9-3.9h.1s1 0 1-1-1-1-1-1h-.1A5 5 0 0 0 11 5.1V5s0-1-1-1m0 2.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 1 1 0-7'/%3E%3Ccircle cx='10' cy='10' r='2'/%3E%3Cpath fill='red' d='m14 5 1 1-9 9-1-1z'/%3E%3C/svg%3E")}.maplibregl-ctrl button.maplibregl-ctrl-geolocate.maplibregl-ctrl-geolocate-active .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' fill='%2333b5e5' viewBox='0 0 20 20'%3E%3Cpath d='M10 4C9 4 9 5 9 5v.1A5 5 0 0 0 5.1 9H5s-1 0-1 1 1 1 1 1h.1A5 5 0 0 0 9 14.9v.1s0 1 1 1 1-1 1-1v-.1a5 5 0 0 0 3.9-3.9h.1s1 0 1-1-1-1-1-1h-.1A5 5 0 0 0 11 5.1V5s0-1-1-1m0 2.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 1 1 0-7'/%3E%3Ccircle cx='10' cy='10' r='2'/%3E%3C/svg%3E")}.maplibregl-ctrl button.maplibregl-ctrl-geolocate.maplibregl-ctrl-geolocate-active-error .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' fill='%23e58978' viewBox='0 0 20 20'%3E%3Cpath d='M10 4C9 4 9 5 9 5v.1A5 5 0 0 0 5.1 9H5s-1 0-1 1 1 1 1 1h.1A5 5 0 0 0 9 14.9v.1s0 1 1 1 1-1 1-1v-.1a5 5 0 0 0 3.9-3.9h.1s1 0 1-1-1-1-1-1h-.1A5 5 0 0 0 11 5.1V5s0-1-1-1m0 2.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 1 1 0-7'/%3E%3Ccircle cx='10' cy='10' r='2'/%3E%3C/svg%3E")}.maplibregl-ctrl button.maplibregl-ctrl-geolocate.maplibregl-ctrl-geolocate-background .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' fill='%2333b5e5' viewBox='0 0 20 20'%3E%3Cpath d='M10 4C9 4 9 5 9 5v.1A5 5 0 0 0 5.1 9H5s-1 0-1 1 1 1 1 1h.1A5 5 0 0 0 9 14.9v.1s0 1 1 1 1-1 1-1v-.1a5 5 0 0 0 3.9-3.9h.1s1 0 1-1-1-1-1-1h-.1A5 5 0 0 0 11 5.1V5s0-1-1-1m0 2.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 1 1 0-7'/%3E%3C/svg%3E")}.maplibregl-ctrl button.maplibregl-ctrl-geolocate.maplibregl-ctrl-geolocate-background-error .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' fill='%23e54e33' viewBox='0 0 20 20'%3E%3Cpath d='M10 4C9 4 9 5 9 5v.1A5 5 0 0 0 5.1 9H5s-1 0-1 1 1 1 1 1h.1A5 5 0 0 0 9 14.9v.1s0 1 1 1 1-1 1-1v-.1a5 5 0 0 0 3.9-3.9h.1s1 0 1-1-1-1-1-1h-.1A5 5 0 0 0 11 5.1V5s0-1-1-1m0 2.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 1 1 0-7'/%3E%3C/svg%3E")}.maplibregl-ctrl button.maplibregl-ctrl-geolocate.maplibregl-ctrl-geolocate-waiting .maplibregl-ctrl-icon{animation:maplibregl-spin 2s linear infinite}@media (forced-colors:active){.maplibregl-ctrl button.maplibregl-ctrl-geolocate .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' fill='%23fff' viewBox='0 0 20 20'%3E%3Cpath d='M10 4C9 4 9 5 9 5v.1A5 5 0 0 0 5.1 9H5s-1 0-1 1 1 1 1 1h.1A5 5 0 0 0 9 14.9v.1s0 1 1 1 1-1 1-1v-.1a5 5 0 0 0 3.9-3.9h.1s1 0 1-1-1-1-1-1h-.1A5 5 0 0 0 11 5.1V5s0-1-1-1m0 2.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 1 1 0-7'/%3E%3Ccircle cx='10' cy='10' r='2'/%3E%3C/svg%3E")}.maplibregl-ctrl button.maplibregl-ctrl-geolocate:disabled .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' fill='%23999' viewBox='0 0 20 20'%3E%3Cpath d='M10 4C9 4 9 5 9 5v.1A5 5 0 0 0 5.1 9H5s-1 0-1 1 1 1 1 1h.1A5 5 0 0 0 9 14.9v.1s0 1 1 1 1-1 1-1v-.1a5 5 0 0 0 3.9-3.9h.1s1 0 1-1-1-1-1-1h-.1A5 5 0 0 0 11 5.1V5s0-1-1-1m0 2.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 1 1 0-7'/%3E%3Ccircle cx='10' cy='10' r='2'/%3E%3Cpath fill='red' d='m14 5 1 1-9 9-1-1z'/%3E%3C/svg%3E")}.maplibregl-ctrl button.maplibregl-ctrl-geolocate.maplibregl-ctrl-geolocate-active .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' fill='%2333b5e5' viewBox='0 0 20 20'%3E%3Cpath d='M10 4C9 4 9 5 9 5v.1A5 5 0 0 0 5.1 9H5s-1 0-1 1 1 1 1 1h.1A5 5 0 0 0 9 14.9v.1s0 1 1 1 1-1 1-1v-.1a5 5 0 0 0 3.9-3.9h.1s1 0 1-1-1-1-1-1h-.1A5 5 0 0 0 11 5.1V5s0-1-1-1m0 2.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 1 1 0-7'/%3E%3Ccircle cx='10' cy='10' r='2'/%3E%3C/svg%3E")}.maplibregl-ctrl button.maplibregl-ctrl-geolocate.maplibregl-ctrl-geolocate-active-error .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' fill='%23e58978' viewBox='0 0 20 20'%3E%3Cpath d='M10 4C9 4 9 5 9 5v.1A5 5 0 0 0 5.1 9H5s-1 0-1 1 1 1 1 1h.1A5 5 0 0 0 9 14.9v.1s0 1 1 1 1-1 1-1v-.1a5 5 0 0 0 3.9-3.9h.1s1 0 1-1-1-1-1-1h-.1A5 5 0 0 0 11 5.1V5s0-1-1-1m0 2.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 1 1 0-7'/%3E%3Ccircle cx='10' cy='10' r='2'/%3E%3C/svg%3E")}.maplibregl-ctrl button.maplibregl-ctrl-geolocate.maplibregl-ctrl-geolocate-background .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' fill='%2333b5e5' viewBox='0 0 20 20'%3E%3Cpath d='M10 4C9 4 9 5 9 5v.1A5 5 0 0 0 5.1 9H5s-1 0-1 1 1 1 1 1h.1A5 5 0 0 0 9 14.9v.1s0 1 1 1 1-1 1-1v-.1a5 5 0 0 0 3.9-3.9h.1s1 0 1-1-1-1-1-1h-.1A5 5 0 0 0 11 5.1V5s0-1-1-1m0 2.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 1 1 0-7'/%3E%3C/svg%3E")}.maplibregl-ctrl button.maplibregl-ctrl-geolocate.maplibregl-ctrl-geolocate-background-error .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' fill='%23e54e33' viewBox='0 0 20 20'%3E%3Cpath d='M10 4C9 4 9 5 9 5v.1A5 5 0 0 0 5.1 9H5s-1 0-1 1 1 1 1 1h.1A5 5 0 0 0 9 14.9v.1s0 1 1 1 1-1 1-1v-.1a5 5 0 0 0 3.9-3.9h.1s1 0 1-1-1-1-1-1h-.1A5 5 0 0 0 11 5.1V5s0-1-1-1m0 2.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 1 1 0-7'/%3E%3C/svg%3E")}}@media (forced-colors:active) and (prefers-color-scheme:light){.maplibregl-ctrl button.maplibregl-ctrl-geolocate .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' viewBox='0 0 20 20'%3E%3Cpath d='M10 4C9 4 9 5 9 5v.1A5 5 0 0 0 5.1 9H5s-1 0-1 1 1 1 1 1h.1A5 5 0 0 0 9 14.9v.1s0 1 1 1 1-1 1-1v-.1a5 5 0 0 0 3.9-3.9h.1s1 0 1-1-1-1-1-1h-.1A5 5 0 0 0 11 5.1V5s0-1-1-1m0 2.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 1 1 0-7'/%3E%3Ccircle cx='10' cy='10' r='2'/%3E%3C/svg%3E")}.maplibregl-ctrl button.maplibregl-ctrl-geolocate:disabled .maplibregl-ctrl-icon{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' fill='%23666' viewBox='0 0 20 20'%3E%3Cpath d='M10 4C9 4 9 5 9 5v.1A5 5 0 0 0 5.1 9H5s-1 0-1 1 1 1 1 1h.1A5 5 0 0 0 9 14.9v.1s0 1 1 1 1-1 1-1v-.1a5 5 0 0 0 3.9-3.9h.1s1 0 1-1-1-1-1-1h-.1A5 5 0 0 0 11 5.1V5s0-1-1-1m0 2.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 1 1 0-7'/%3E%3Ccircle cx='10' cy='10' r='2'/%3E%3Cpath fill='red' d='m14 5 1 1-9 9-1-1z'/%3E%3C/svg%3E")}}@keyframes maplibregl-spin{0%{transform:rotate(0deg)}to{transform:rotate(1turn)}}a.maplibregl-ctrl-logo{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='88' height='23' fill='none'%3E%3Cpath fill='%23000' fill-opacity='.4' fill-rule='evenodd' d='M17.408 16.796h-1.827l2.501-12.095h.198l3.324 6.533.988 2.19.988-2.19 3.258-6.533h.181l2.6 12.095h-1.81l-1.218-5.644-.362-1.71-.658 1.71-2.929 5.644h-.098l-2.914-5.644-.757-1.71-.345 1.71zm1.958-3.42-.726 3.663a1.255 1.255 0 0 1-1.232 1.011h-1.827a1.255 1.255 0 0 1-1.229-1.509l2.501-12.095a1.255 1.255 0 0 1 1.23-1.001h.197a1.25 1.25 0 0 1 1.12.685l3.19 6.273 3.125-6.263a1.25 1.25 0 0 1 1.123-.695h.181a1.255 1.255 0 0 1 1.227.991l1.443 6.71a5 5 0 0 1 .314-.787l.009-.016a4.6 4.6 0 0 1 1.777-1.887c.782-.46 1.668-.667 2.611-.667a4.6 4.6 0 0 1 1.7.32l.306.134c.21-.16.474-.256.759-.256h1.694a1.255 1.255 0 0 1 1.212.925 1.255 1.255 0 0 1 1.212-.925h1.711c.284 0 .545.094.755.252.613-.3 1.312-.45 2.075-.45 1.356 0 2.557.445 3.482 1.4q.47.48.763 1.064V4.701a1.255 1.255 0 0 1 1.255-1.255h1.86A1.255 1.255 0 0 1 54.44 4.7v9.194h2.217c.19 0 .37.043.532.118v-4.77c0-.356.147-.678.385-.906a2.42 2.42 0 0 1-.682-1.71c0-.665.267-1.253.735-1.7a2.45 2.45 0 0 1 1.722-.674 2.43 2.43 0 0 1 1.705.675q.318.302.504.683V4.7a1.255 1.255 0 0 1 1.255-1.255h1.744A1.255 1.255 0 0 1 65.812 4.7v3.335a4.8 4.8 0 0 1 1.526-.246c.938 0 1.817.214 2.59.69a4.47 4.47 0 0 1 1.67 1.743v-.98a1.255 1.255 0 0 1 1.256-1.256h1.777c.233 0 .451.064.639.174a3.4 3.4 0 0 1 1.567-.372c.346 0 .861.02 1.285.232a1.25 1.25 0 0 1 .689 1.004 4.7 4.7 0 0 1 .853-.588c.795-.44 1.675-.647 2.61-.647 1.385 0 2.65.39 3.525 1.396.836.938 1.168 2.173 1.168 3.528q-.001.515-.056 1.051a1.255 1.255 0 0 1-.947 1.09l.408.952a1.255 1.255 0 0 1-.477 1.552c-.418.268-.92.463-1.458.612-.613.171-1.304.244-2.049.244-1.06 0-2.043-.207-2.886-.698l-.015-.008c-.798-.48-1.419-1.135-1.818-1.963l-.004-.008a5.8 5.8 0 0 1-.548-2.512q0-.429.053-.843a1.3 1.3 0 0 1-.333-.086l-.166-.004c-.223 0-.426.062-.643.228-.03.024-.142.139-.142.59v3.883a1.255 1.255 0 0 1-1.256 1.256h-1.777a1.255 1.255 0 0 1-1.256-1.256V15.69l-.032.057a4.8 4.8 0 0 1-1.86 1.833 5.04 5.04 0 0 1-2.484.634 4.5 4.5 0 0 1-1.935-.424 1.25 1.25 0 0 1-.764.258h-1.71a1.255 1.255 0 0 1-1.256-1.255V7.687a2.4 2.4 0 0 1-.428.625c.253.23.412.561.412.93v7.553a1.255 1.255 0 0 1-1.256 1.255h-1.843a1.25 1.25 0 0 1-.894-.373c-.228.23-.544.373-.894.373H51.32a1.255 1.255 0 0 1-1.256-1.255v-1.251l-.061.117a4.7 4.7 0 0 1-1.782 1.884 4.77 4.77 0 0 1-2.485.67 5.6 5.6 0 0 1-1.485-.188l.009 2.764a1.255 1.255 0 0 1-1.255 1.259h-1.729a1.255 1.255 0 0 1-1.255-1.255v-3.537a1.255 1.255 0 0 1-1.167.793h-1.679a1.25 1.25 0 0 1-.77-.263 4.5 4.5 0 0 1-1.945.429c-.885 0-1.724-.21-2.495-.632l-.017-.01a5 5 0 0 1-1.081-.836 1.255 1.255 0 0 1-1.254 1.312h-1.81a1.255 1.255 0 0 1-1.228-.99l-.782-3.625-2.044 3.939a1.25 1.25 0 0 1-1.115.676h-.098a1.25 1.25 0 0 1-1.116-.68l-2.061-3.994zM35.92 16.63l.207-.114.223-.15q.493-.356.735-.785l.061-.118.033 1.332h1.678V9.242h-1.694l-.033 1.267q-.133-.329-.526-.658l-.032-.028a3.2 3.2 0 0 0-.668-.428l-.27-.12a3.3 3.3 0 0 0-1.235-.23q-1.136-.001-1.974.493a3.36 3.36 0 0 0-1.3 1.382q-.445.89-.444 2.074 0 1.2.51 2.107a3.8 3.8 0 0 0 1.382 1.381 3.9 3.9 0 0 0 1.893.477q.795 0 1.455-.33zm-2.789-5.38q-.576.675-.575 1.762 0 1.102.559 1.794.576.675 1.645.675a2.25 2.25 0 0 0 .934-.19 2.2 2.2 0 0 0 .468-.29l.178-.161a2.2 2.2 0 0 0 .397-.561q.244-.5.244-1.15v-.115q0-.708-.296-1.267l-.043-.077a2.2 2.2 0 0 0-.633-.709l-.13-.086-.047-.028a2.1 2.1 0 0 0-1.073-.285q-1.052 0-1.629.692zm2.316 2.706c.163-.17.28-.407.28-.83v-.114c0-.292-.06-.508-.15-.68a.96.96 0 0 0-.353-.389.85.85 0 0 0-.464-.127c-.4 0-.56.114-.664.239l-.01.012c-.148.174-.275.45-.275.945 0 .506.122.801.27.99.097.11.266.224.68.224.303 0 .504-.09.687-.269zm7.545 1.705a2.6 2.6 0 0 0 .331.423q.319.33.755.548l.173.074q.65.255 1.49.255 1.02 0 1.844-.493a3.45 3.45 0 0 0 1.316-1.4q.493-.904.493-2.089 0-1.909-.988-2.913-.988-1.02-2.584-1.02-.898 0-1.575.347a3 3 0 0 0-.415.262l-.199.166a3.4 3.4 0 0 0-.64.82V9.242h-1.712v11.553h1.729l-.017-5.134zm.53-1.138q.206.29.48.5l.155.11.053.034q.51.296 1.119.297 1.07 0 1.645-.675.577-.69.576-1.762 0-1.119-.576-1.777-.558-.675-1.645-.675-.435 0-.835.16a2 2 0 0 0-.284.136 2 2 0 0 0-.363.254 2.2 2.2 0 0 0-.46.569l-.082.162a2.6 2.6 0 0 0-.213 1.072v.115q0 .707.296 1.267l.135.211zm.964-.818a1.1 1.1 0 0 0 .367.385.94.94 0 0 0 .476.118c.423 0 .59-.117.687-.23.159-.194.28-.478.28-.95 0-.53-.133-.8-.266-.952l-.021-.025c-.078-.094-.231-.221-.68-.221a1 1 0 0 0-.503.135l-.012.007a.86.86 0 0 0-.335.343c-.073.133-.132.324-.132.614v.115a1.4 1.4 0 0 0 .14.66zm15.7-6.222q.347-.346.346-.856a1.05 1.05 0 0 0-.345-.79 1.18 1.18 0 0 0-.84-.329q-.51 0-.855.33a1.05 1.05 0 0 0-.346.79q0 .51.346.855.345.346.856.346.51 0 .839-.346zm4.337 9.314.033-1.332q.191.403.59.747l.098.081a4 4 0 0 0 .316.224l.223.122a3.2 3.2 0 0 0 1.44.322 3.8 3.8 0 0 0 1.875-.477 3.5 3.5 0 0 0 1.382-1.366q.527-.89.526-2.09 0-1.184-.444-2.073a3.24 3.24 0 0 0-1.283-1.399q-.823-.51-1.942-.51a3.5 3.5 0 0 0-1.527.344l-.086.043-.165.09a3 3 0 0 0-.33.214q-.432.315-.656.707a2 2 0 0 0-.099.198l.082-1.283V4.701h-1.744v12.095zm.473-2.509a2.5 2.5 0 0 0 .566.7q.117.098.245.18l.144.08a2.1 2.1 0 0 0 .975.232q1.07 0 1.645-.675.576-.69.576-1.778 0-1.102-.576-1.777-.56-.691-1.645-.692a2.2 2.2 0 0 0-1.015.235q-.22.113-.415.282l-.15.142a2.1 2.1 0 0 0-.42.594q-.223.479-.223 1.1v.115q0 .705.293 1.26zm2.616-.293c.157-.191.28-.479.28-.967 0-.51-.13-.79-.276-.961l-.021-.026c-.082-.1-.232-.225-.67-.225a.87.87 0 0 0-.681.279l-.012.011c-.154.155-.274.38-.274.807v.115c0 .285.057.499.144.669a1.1 1.1 0 0 0 .367.405c.137.082.28.123.455.123.423 0 .59-.118.686-.23zm8.266-3.013q.345-.13.724-.14l.069-.002q.493 0 .642.099l.247-1.794q-.196-.099-.717-.099a2.3 2.3 0 0 0-.545.063 2 2 0 0 0-.411.148 2.2 2.2 0 0 0-.4.249 2.5 2.5 0 0 0-.485.499 2.7 2.7 0 0 0-.32.581l-.05.137v-1.48h-1.778v7.553h1.777v-3.884q0-.546.159-.943a1.5 1.5 0 0 1 .466-.636 2.5 2.5 0 0 1 .399-.253 2 2 0 0 1 .224-.099zm9.784 2.656.05-.922q0-1.743-.856-2.698-.838-.97-2.584-.97-1.119-.001-2.007.493a3.46 3.46 0 0 0-1.4 1.382q-.493.906-.493 2.106 0 1.07.428 1.975.428.89 1.332 1.432.906.526 2.255.526.973 0 1.668-.185l.044-.012.135-.04q.613-.184.984-.421l-.542-1.267q-.3.162-.642.274l-.297.087q-.51.131-1.3.131-.954 0-1.497-.444a1.6 1.6 0 0 1-.192-.193q-.366-.44-.512-1.234l-.004-.021zm-5.427-1.256-.003.022h3.752v-.138q-.011-.727-.288-1.118a1 1 0 0 0-.156-.176q-.46-.428-1.316-.428-.986 0-1.494.604-.379.45-.494 1.234zm-27.053 2.77V4.7h-1.86v12.095h5.333V15.15zm7.103-5.908v7.553h-1.843V9.242h1.843z'/%3E%3Cpath fill='%23fff' d='m19.63 11.151-.757-1.71-.345 1.71-1.12 5.644h-1.827L18.083 4.7h.197l3.325 6.533.988 2.19.988-2.19L26.839 4.7h.181l2.6 12.095h-1.81l-1.218-5.644-.362-1.71-.658 1.71-2.93 5.644h-.098l-2.913-5.644zm14.836 5.81q-1.02 0-1.893-.478a3.8 3.8 0 0 1-1.381-1.382q-.51-.906-.51-2.106 0-1.185.444-2.074a3.36 3.36 0 0 1 1.3-1.382q.839-.494 1.974-.494a3.3 3.3 0 0 1 1.234.231 3.3 3.3 0 0 1 .97.575q.396.33.527.659l.033-1.267h1.694v7.553H37.18l-.033-1.332q-.279.593-1.02 1.053a3.17 3.17 0 0 1-1.662.444zm.296-1.482q.938 0 1.58-.642.642-.66.642-1.711v-.115q0-.708-.296-1.267a2.2 2.2 0 0 0-.807-.872 2.1 2.1 0 0 0-1.119-.313q-1.053 0-1.629.692-.575.675-.575 1.76 0 1.103.559 1.795.577.675 1.645.675zm6.521-6.237h1.711v1.4q.906-1.597 2.83-1.597 1.596 0 2.584 1.02.988 1.005.988 2.914 0 1.185-.493 2.09a3.46 3.46 0 0 1-1.316 1.399 3.5 3.5 0 0 1-1.844.493q-.954 0-1.662-.329a2.67 2.67 0 0 1-1.086-.97l.017 5.134h-1.728zm4.048 6.22q1.07 0 1.645-.674.577-.69.576-1.762 0-1.119-.576-1.777-.558-.675-1.645-.675-.592 0-1.12.296-.51.28-.822.823-.296.527-.296 1.234v.115q0 .708.296 1.267.313.543.823.855.51.296 1.119.297z'/%3E%3Cpath fill='%23e1e3e9' d='M51.325 4.7h1.86v10.45h3.473v1.646h-5.333zm7.12 4.542h1.843v7.553h-1.843zm.905-1.415a1.16 1.16 0 0 1-.856-.346 1.17 1.17 0 0 1-.346-.856 1.05 1.05 0 0 1 .346-.79q.346-.329.856-.329.494 0 .839.33a1.05 1.05 0 0 1 .345.79 1.16 1.16 0 0 1-.345.855q-.33.346-.84.346zm7.875 9.133a3.17 3.17 0 0 1-1.662-.444q-.723-.46-1.004-1.053l-.033 1.332h-1.71V4.701h1.743v4.657l-.082 1.283q.279-.658 1.086-1.119a3.5 3.5 0 0 1 1.778-.477q1.119 0 1.942.51a3.24 3.24 0 0 1 1.283 1.4q.445.888.444 2.072 0 1.201-.526 2.09a3.5 3.5 0 0 1-1.382 1.366 3.8 3.8 0 0 1-1.876.477zm-.296-1.481q1.069 0 1.645-.675.577-.69.577-1.778 0-1.102-.577-1.776-.56-.691-1.645-.692a2.12 2.12 0 0 0-1.58.659q-.642.641-.642 1.694v.115q0 .71.296 1.267a2.4 2.4 0 0 0 .807.872 2.1 2.1 0 0 0 1.119.313zm5.927-6.237h1.777v1.481q.263-.757.856-1.217a2.14 2.14 0 0 1 1.349-.46q.527 0 .724.098l-.247 1.794q-.149-.099-.642-.099-.774 0-1.416.494-.626.493-.626 1.58v3.883h-1.777V9.242zm9.534 7.718q-1.35 0-2.255-.526-.904-.543-1.332-1.432a4.6 4.6 0 0 1-.428-1.975q0-1.2.493-2.106a3.46 3.46 0 0 1 1.4-1.382q.889-.495 2.007-.494 1.744 0 2.584.97.855.956.856 2.7 0 .444-.05.92h-5.43q.18 1.005.708 1.45.542.443 1.497.443.79 0 1.3-.131a4 4 0 0 0 .938-.362l.542 1.267q-.411.263-1.119.46-.708.198-1.711.197zm1.596-4.558q.016-1.02-.444-1.432-.46-.428-1.316-.428-1.728 0-1.991 1.86z'/%3E%3Cpath d='M5.074 15.948a.484.657 0 0 0-.486.659v1.84a.484.657 0 0 0 .486.659h4.101a.484.657 0 0 0 .486-.659v-1.84a.484.657 0 0 0-.486-.659zm3.56 1.16H5.617v.838h3.017z' style='fill:%23fff;fill-rule:evenodd;stroke-width:1.03600001'/%3E%3Cg style='stroke-width:1.12603545'%3E%3Cpath d='M-9.408-1.416c-3.833-.025-7.056 2.912-7.08 6.615-.02 3.08 1.653 4.832 3.107 6.268.903.892 1.721 1.74 2.32 2.902l-.525-.004c-.543-.003-.992.304-1.24.639a1.87 1.87 0 0 0-.362 1.121l-.011 1.877c-.003.402.104.787.347 1.125.244.338.688.653 1.23.656l4.142.028c.542.003.99-.306 1.238-.641a1.87 1.87 0 0 0 .363-1.121l.012-1.875a1.87 1.87 0 0 0-.348-1.127c-.243-.338-.688-.653-1.23-.656l-.518-.004c.597-1.145 1.425-1.983 2.348-2.87 1.473-1.414 3.18-3.149 3.2-6.226-.016-3.59-2.923-6.684-6.993-6.707m-.006 1.1v.002c3.274.02 5.92 2.532 5.9 5.6-.017 2.706-1.39 4.026-2.863 5.44-1.034.994-2.118 2.033-2.814 3.633-.018.041-.052.055-.075.065q-.013.004-.02.01a.34.34 0 0 1-.226.084.34.34 0 0 1-.224-.086l-.092-.077c-.699-1.615-1.768-2.669-2.781-3.67-1.454-1.435-2.797-2.762-2.78-5.478.02-3.067 2.7-5.545 5.975-5.523m-.02 2.826c-1.62-.01-2.944 1.315-2.955 2.96-.01 1.646 1.295 2.988 2.916 2.999h.002c1.621.01 2.943-1.316 2.953-2.961.011-1.646-1.294-2.988-2.916-2.998m-.005 1.1c1.017.006 1.829.83 1.822 1.89s-.83 1.874-1.848 1.867c-1.018-.006-1.829-.83-1.822-1.89s.83-1.874 1.848-1.868m-2.155 11.857 4.14.025c.271.002.49.305.487.676l-.013 1.875c-.003.37-.224.67-.495.668l-4.14-.025c-.27-.002-.487-.306-.485-.676l.012-1.875c.003-.37.224-.67.494-.668' style='color:%23000;font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:medium;line-height:normal;font-family:sans-serif;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-feature-settings:normal;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:%23000;letter-spacing:normal;word-spacing:normal;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:start;white-space:normal;shape-padding:0;clip-rule:evenodd;display:inline;overflow:visible;visibility:visible;opacity:1;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:%23000;solid-opacity:1;vector-effect:none;fill:%23000;fill-opacity:.4;fill-rule:evenodd;stroke:none;stroke-width:2.47727823;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto' transform='translate(15.553 2.85)scale(.88807)'/%3E%3Cpath d='M-9.415-.316C-12.69-.338-15.37 2.14-15.39 5.207c-.017 2.716 1.326 4.041 2.78 5.477 1.013 1 2.081 2.055 2.78 3.67l.092.076a.34.34 0 0 0 .225.086.34.34 0 0 0 .227-.083l.019-.01c.022-.009.057-.024.074-.064.697-1.6 1.78-2.64 2.814-3.634 1.473-1.414 2.847-2.733 2.864-5.44.02-3.067-2.627-5.58-5.901-5.601m-.057 8.784c1.621.011 2.944-1.315 2.955-2.96.01-1.646-1.295-2.988-2.916-2.999-1.622-.01-2.945 1.315-2.955 2.96s1.295 2.989 2.916 3' style='clip-rule:evenodd;fill:%23e1e3e9;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:2.47727823;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:.4' transform='translate(15.553 2.85)scale(.88807)'/%3E%3Cpath d='M-11.594 15.465c-.27-.002-.492.297-.494.668l-.012 1.876c-.003.371.214.673.485.675l4.14.027c.271.002.492-.298.495-.668l.012-1.877c.003-.37-.215-.672-.485-.674z' style='clip-rule:evenodd;fill:%23fff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:2.47727823;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:.4' transform='translate(15.553 2.85)scale(.88807)'/%3E%3C/g%3E%3C/svg%3E");background-repeat:no-repeat;cursor:pointer;display:block;height:23px;margin:0 0 -4px -4px;overflow:hidden;width:88px}a.maplibregl-ctrl-logo.maplibregl-compact{width:14px}@media (forced-colors:active){a.maplibregl-ctrl-logo{background-color:transparent;background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='88' height='23' fill='none'%3E%3Cpath fill='%23000' fill-opacity='.4' fill-rule='evenodd' d='M17.408 16.796h-1.827l2.501-12.095h.198l3.324 6.533.988 2.19.988-2.19 3.258-6.533h.181l2.6 12.095h-1.81l-1.218-5.644-.362-1.71-.658 1.71-2.929 5.644h-.098l-2.914-5.644-.757-1.71-.345 1.71zm1.958-3.42-.726 3.663a1.255 1.255 0 0 1-1.232 1.011h-1.827a1.255 1.255 0 0 1-1.229-1.509l2.501-12.095a1.255 1.255 0 0 1 1.23-1.001h.197a1.25 1.25 0 0 1 1.12.685l3.19 6.273 3.125-6.263a1.25 1.25 0 0 1 1.123-.695h.181a1.255 1.255 0 0 1 1.227.991l1.443 6.71a5 5 0 0 1 .314-.787l.009-.016a4.6 4.6 0 0 1 1.777-1.887c.782-.46 1.668-.667 2.611-.667a4.6 4.6 0 0 1 1.7.32l.306.134c.21-.16.474-.256.759-.256h1.694a1.255 1.255 0 0 1 1.212.925 1.255 1.255 0 0 1 1.212-.925h1.711c.284 0 .545.094.755.252.613-.3 1.312-.45 2.075-.45 1.356 0 2.557.445 3.482 1.4q.47.48.763 1.064V4.701a1.255 1.255 0 0 1 1.255-1.255h1.86A1.255 1.255 0 0 1 54.44 4.7v9.194h2.217c.19 0 .37.043.532.118v-4.77c0-.356.147-.678.385-.906a2.42 2.42 0 0 1-.682-1.71c0-.665.267-1.253.735-1.7a2.45 2.45 0 0 1 1.722-.674 2.43 2.43 0 0 1 1.705.675q.318.302.504.683V4.7a1.255 1.255 0 0 1 1.255-1.255h1.744A1.255 1.255 0 0 1 65.812 4.7v3.335a4.8 4.8 0 0 1 1.526-.246c.938 0 1.817.214 2.59.69a4.47 4.47 0 0 1 1.67 1.743v-.98a1.255 1.255 0 0 1 1.256-1.256h1.777c.233 0 .451.064.639.174a3.4 3.4 0 0 1 1.567-.372c.346 0 .861.02 1.285.232a1.25 1.25 0 0 1 .689 1.004 4.7 4.7 0 0 1 .853-.588c.795-.44 1.675-.647 2.61-.647 1.385 0 2.65.39 3.525 1.396.836.938 1.168 2.173 1.168 3.528q-.001.515-.056 1.051a1.255 1.255 0 0 1-.947 1.09l.408.952a1.255 1.255 0 0 1-.477 1.552c-.418.268-.92.463-1.458.612-.613.171-1.304.244-2.049.244-1.06 0-2.043-.207-2.886-.698l-.015-.008c-.798-.48-1.419-1.135-1.818-1.963l-.004-.008a5.8 5.8 0 0 1-.548-2.512q0-.429.053-.843a1.3 1.3 0 0 1-.333-.086l-.166-.004c-.223 0-.426.062-.643.228-.03.024-.142.139-.142.59v3.883a1.255 1.255 0 0 1-1.256 1.256h-1.777a1.255 1.255 0 0 1-1.256-1.256V15.69l-.032.057a4.8 4.8 0 0 1-1.86 1.833 5.04 5.04 0 0 1-2.484.634 4.5 4.5 0 0 1-1.935-.424 1.25 1.25 0 0 1-.764.258h-1.71a1.255 1.255 0 0 1-1.256-1.255V7.687a2.4 2.4 0 0 1-.428.625c.253.23.412.561.412.93v7.553a1.255 1.255 0 0 1-1.256 1.255h-1.843a1.25 1.25 0 0 1-.894-.373c-.228.23-.544.373-.894.373H51.32a1.255 1.255 0 0 1-1.256-1.255v-1.251l-.061.117a4.7 4.7 0 0 1-1.782 1.884 4.77 4.77 0 0 1-2.485.67 5.6 5.6 0 0 1-1.485-.188l.009 2.764a1.255 1.255 0 0 1-1.255 1.259h-1.729a1.255 1.255 0 0 1-1.255-1.255v-3.537a1.255 1.255 0 0 1-1.167.793h-1.679a1.25 1.25 0 0 1-.77-.263 4.5 4.5 0 0 1-1.945.429c-.885 0-1.724-.21-2.495-.632l-.017-.01a5 5 0 0 1-1.081-.836 1.255 1.255 0 0 1-1.254 1.312h-1.81a1.255 1.255 0 0 1-1.228-.99l-.782-3.625-2.044 3.939a1.25 1.25 0 0 1-1.115.676h-.098a1.25 1.25 0 0 1-1.116-.68l-2.061-3.994zM35.92 16.63l.207-.114.223-.15q.493-.356.735-.785l.061-.118.033 1.332h1.678V9.242h-1.694l-.033 1.267q-.133-.329-.526-.658l-.032-.028a3.2 3.2 0 0 0-.668-.428l-.27-.12a3.3 3.3 0 0 0-1.235-.23q-1.136-.001-1.974.493a3.36 3.36 0 0 0-1.3 1.382q-.445.89-.444 2.074 0 1.2.51 2.107a3.8 3.8 0 0 0 1.382 1.381 3.9 3.9 0 0 0 1.893.477q.795 0 1.455-.33zm-2.789-5.38q-.576.675-.575 1.762 0 1.102.559 1.794.576.675 1.645.675a2.25 2.25 0 0 0 .934-.19 2.2 2.2 0 0 0 .468-.29l.178-.161a2.2 2.2 0 0 0 .397-.561q.244-.5.244-1.15v-.115q0-.708-.296-1.267l-.043-.077a2.2 2.2 0 0 0-.633-.709l-.13-.086-.047-.028a2.1 2.1 0 0 0-1.073-.285q-1.052 0-1.629.692zm2.316 2.706c.163-.17.28-.407.28-.83v-.114c0-.292-.06-.508-.15-.68a.96.96 0 0 0-.353-.389.85.85 0 0 0-.464-.127c-.4 0-.56.114-.664.239l-.01.012c-.148.174-.275.45-.275.945 0 .506.122.801.27.99.097.11.266.224.68.224.303 0 .504-.09.687-.269zm7.545 1.705a2.6 2.6 0 0 0 .331.423q.319.33.755.548l.173.074q.65.255 1.49.255 1.02 0 1.844-.493a3.45 3.45 0 0 0 1.316-1.4q.493-.904.493-2.089 0-1.909-.988-2.913-.988-1.02-2.584-1.02-.898 0-1.575.347a3 3 0 0 0-.415.262l-.199.166a3.4 3.4 0 0 0-.64.82V9.242h-1.712v11.553h1.729l-.017-5.134zm.53-1.138q.206.29.48.5l.155.11.053.034q.51.296 1.119.297 1.07 0 1.645-.675.577-.69.576-1.762 0-1.119-.576-1.777-.558-.675-1.645-.675-.435 0-.835.16a2 2 0 0 0-.284.136 2 2 0 0 0-.363.254 2.2 2.2 0 0 0-.46.569l-.082.162a2.6 2.6 0 0 0-.213 1.072v.115q0 .707.296 1.267l.135.211zm.964-.818a1.1 1.1 0 0 0 .367.385.94.94 0 0 0 .476.118c.423 0 .59-.117.687-.23.159-.194.28-.478.28-.95 0-.53-.133-.8-.266-.952l-.021-.025c-.078-.094-.231-.221-.68-.221a1 1 0 0 0-.503.135l-.012.007a.86.86 0 0 0-.335.343c-.073.133-.132.324-.132.614v.115a1.4 1.4 0 0 0 .14.66zm15.7-6.222q.347-.346.346-.856a1.05 1.05 0 0 0-.345-.79 1.18 1.18 0 0 0-.84-.329q-.51 0-.855.33a1.05 1.05 0 0 0-.346.79q0 .51.346.855.345.346.856.346.51 0 .839-.346zm4.337 9.314.033-1.332q.191.403.59.747l.098.081a4 4 0 0 0 .316.224l.223.122a3.2 3.2 0 0 0 1.44.322 3.8 3.8 0 0 0 1.875-.477 3.5 3.5 0 0 0 1.382-1.366q.527-.89.526-2.09 0-1.184-.444-2.073a3.24 3.24 0 0 0-1.283-1.399q-.823-.51-1.942-.51a3.5 3.5 0 0 0-1.527.344l-.086.043-.165.09a3 3 0 0 0-.33.214q-.432.315-.656.707a2 2 0 0 0-.099.198l.082-1.283V4.701h-1.744v12.095zm.473-2.509a2.5 2.5 0 0 0 .566.7q.117.098.245.18l.144.08a2.1 2.1 0 0 0 .975.232q1.07 0 1.645-.675.576-.69.576-1.778 0-1.102-.576-1.777-.56-.691-1.645-.692a2.2 2.2 0 0 0-1.015.235q-.22.113-.415.282l-.15.142a2.1 2.1 0 0 0-.42.594q-.223.479-.223 1.1v.115q0 .705.293 1.26zm2.616-.293c.157-.191.28-.479.28-.967 0-.51-.13-.79-.276-.961l-.021-.026c-.082-.1-.232-.225-.67-.225a.87.87 0 0 0-.681.279l-.012.011c-.154.155-.274.38-.274.807v.115c0 .285.057.499.144.669a1.1 1.1 0 0 0 .367.405c.137.082.28.123.455.123.423 0 .59-.118.686-.23zm8.266-3.013q.345-.13.724-.14l.069-.002q.493 0 .642.099l.247-1.794q-.196-.099-.717-.099a2.3 2.3 0 0 0-.545.063 2 2 0 0 0-.411.148 2.2 2.2 0 0 0-.4.249 2.5 2.5 0 0 0-.485.499 2.7 2.7 0 0 0-.32.581l-.05.137v-1.48h-1.778v7.553h1.777v-3.884q0-.546.159-.943a1.5 1.5 0 0 1 .466-.636 2.5 2.5 0 0 1 .399-.253 2 2 0 0 1 .224-.099zm9.784 2.656.05-.922q0-1.743-.856-2.698-.838-.97-2.584-.97-1.119-.001-2.007.493a3.46 3.46 0 0 0-1.4 1.382q-.493.906-.493 2.106 0 1.07.428 1.975.428.89 1.332 1.432.906.526 2.255.526.973 0 1.668-.185l.044-.012.135-.04q.613-.184.984-.421l-.542-1.267q-.3.162-.642.274l-.297.087q-.51.131-1.3.131-.954 0-1.497-.444a1.6 1.6 0 0 1-.192-.193q-.366-.44-.512-1.234l-.004-.021zm-5.427-1.256-.003.022h3.752v-.138q-.011-.727-.288-1.118a1 1 0 0 0-.156-.176q-.46-.428-1.316-.428-.986 0-1.494.604-.379.45-.494 1.234zm-27.053 2.77V4.7h-1.86v12.095h5.333V15.15zm7.103-5.908v7.553h-1.843V9.242h1.843z'/%3E%3Cpath fill='%23fff' d='m19.63 11.151-.757-1.71-.345 1.71-1.12 5.644h-1.827L18.083 4.7h.197l3.325 6.533.988 2.19.988-2.19L26.839 4.7h.181l2.6 12.095h-1.81l-1.218-5.644-.362-1.71-.658 1.71-2.93 5.644h-.098l-2.913-5.644zm14.836 5.81q-1.02 0-1.893-.478a3.8 3.8 0 0 1-1.381-1.382q-.51-.906-.51-2.106 0-1.185.444-2.074a3.36 3.36 0 0 1 1.3-1.382q.839-.494 1.974-.494a3.3 3.3 0 0 1 1.234.231 3.3 3.3 0 0 1 .97.575q.396.33.527.659l.033-1.267h1.694v7.553H37.18l-.033-1.332q-.279.593-1.02 1.053a3.17 3.17 0 0 1-1.662.444zm.296-1.482q.938 0 1.58-.642.642-.66.642-1.711v-.115q0-.708-.296-1.267a2.2 2.2 0 0 0-.807-.872 2.1 2.1 0 0 0-1.119-.313q-1.053 0-1.629.692-.575.675-.575 1.76 0 1.103.559 1.795.577.675 1.645.675zm6.521-6.237h1.711v1.4q.906-1.597 2.83-1.597 1.596 0 2.584 1.02.988 1.005.988 2.914 0 1.185-.493 2.09a3.46 3.46 0 0 1-1.316 1.399 3.5 3.5 0 0 1-1.844.493q-.954 0-1.662-.329a2.67 2.67 0 0 1-1.086-.97l.017 5.134h-1.728zm4.048 6.22q1.07 0 1.645-.674.577-.69.576-1.762 0-1.119-.576-1.777-.558-.675-1.645-.675-.592 0-1.12.296-.51.28-.822.823-.296.527-.296 1.234v.115q0 .708.296 1.267.313.543.823.855.51.296 1.119.297z'/%3E%3Cpath fill='%23e1e3e9' d='M51.325 4.7h1.86v10.45h3.473v1.646h-5.333zm7.12 4.542h1.843v7.553h-1.843zm.905-1.415a1.16 1.16 0 0 1-.856-.346 1.17 1.17 0 0 1-.346-.856 1.05 1.05 0 0 1 .346-.79q.346-.329.856-.329.494 0 .839.33a1.05 1.05 0 0 1 .345.79 1.16 1.16 0 0 1-.345.855q-.33.346-.84.346zm7.875 9.133a3.17 3.17 0 0 1-1.662-.444q-.723-.46-1.004-1.053l-.033 1.332h-1.71V4.701h1.743v4.657l-.082 1.283q.279-.658 1.086-1.119a3.5 3.5 0 0 1 1.778-.477q1.119 0 1.942.51a3.24 3.24 0 0 1 1.283 1.4q.445.888.444 2.072 0 1.201-.526 2.09a3.5 3.5 0 0 1-1.382 1.366 3.8 3.8 0 0 1-1.876.477zm-.296-1.481q1.069 0 1.645-.675.577-.69.577-1.778 0-1.102-.577-1.776-.56-.691-1.645-.692a2.12 2.12 0 0 0-1.58.659q-.642.641-.642 1.694v.115q0 .71.296 1.267a2.4 2.4 0 0 0 .807.872 2.1 2.1 0 0 0 1.119.313zm5.927-6.237h1.777v1.481q.263-.757.856-1.217a2.14 2.14 0 0 1 1.349-.46q.527 0 .724.098l-.247 1.794q-.149-.099-.642-.099-.774 0-1.416.494-.626.493-.626 1.58v3.883h-1.777V9.242zm9.534 7.718q-1.35 0-2.255-.526-.904-.543-1.332-1.432a4.6 4.6 0 0 1-.428-1.975q0-1.2.493-2.106a3.46 3.46 0 0 1 1.4-1.382q.889-.495 2.007-.494 1.744 0 2.584.97.855.956.856 2.7 0 .444-.05.92h-5.43q.18 1.005.708 1.45.542.443 1.497.443.79 0 1.3-.131a4 4 0 0 0 .938-.362l.542 1.267q-.411.263-1.119.46-.708.198-1.711.197zm1.596-4.558q.016-1.02-.444-1.432-.46-.428-1.316-.428-1.728 0-1.991 1.86z'/%3E%3Cpath d='M5.074 15.948a.484.657 0 0 0-.486.659v1.84a.484.657 0 0 0 .486.659h4.101a.484.657 0 0 0 .486-.659v-1.84a.484.657 0 0 0-.486-.659zm3.56 1.16H5.617v.838h3.017z' style='fill:%23fff;fill-rule:evenodd;stroke-width:1.03600001'/%3E%3Cg style='stroke-width:1.12603545'%3E%3Cpath d='M-9.408-1.416c-3.833-.025-7.056 2.912-7.08 6.615-.02 3.08 1.653 4.832 3.107 6.268.903.892 1.721 1.74 2.32 2.902l-.525-.004c-.543-.003-.992.304-1.24.639a1.87 1.87 0 0 0-.362 1.121l-.011 1.877c-.003.402.104.787.347 1.125.244.338.688.653 1.23.656l4.142.028c.542.003.99-.306 1.238-.641a1.87 1.87 0 0 0 .363-1.121l.012-1.875a1.87 1.87 0 0 0-.348-1.127c-.243-.338-.688-.653-1.23-.656l-.518-.004c.597-1.145 1.425-1.983 2.348-2.87 1.473-1.414 3.18-3.149 3.2-6.226-.016-3.59-2.923-6.684-6.993-6.707m-.006 1.1v.002c3.274.02 5.92 2.532 5.9 5.6-.017 2.706-1.39 4.026-2.863 5.44-1.034.994-2.118 2.033-2.814 3.633-.018.041-.052.055-.075.065q-.013.004-.02.01a.34.34 0 0 1-.226.084.34.34 0 0 1-.224-.086l-.092-.077c-.699-1.615-1.768-2.669-2.781-3.67-1.454-1.435-2.797-2.762-2.78-5.478.02-3.067 2.7-5.545 5.975-5.523m-.02 2.826c-1.62-.01-2.944 1.315-2.955 2.96-.01 1.646 1.295 2.988 2.916 2.999h.002c1.621.01 2.943-1.316 2.953-2.961.011-1.646-1.294-2.988-2.916-2.998m-.005 1.1c1.017.006 1.829.83 1.822 1.89s-.83 1.874-1.848 1.867c-1.018-.006-1.829-.83-1.822-1.89s.83-1.874 1.848-1.868m-2.155 11.857 4.14.025c.271.002.49.305.487.676l-.013 1.875c-.003.37-.224.67-.495.668l-4.14-.025c-.27-.002-.487-.306-.485-.676l.012-1.875c.003-.37.224-.67.494-.668' style='color:%23000;font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:medium;line-height:normal;font-family:sans-serif;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-feature-settings:normal;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:%23000;letter-spacing:normal;word-spacing:normal;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:start;white-space:normal;shape-padding:0;clip-rule:evenodd;display:inline;overflow:visible;visibility:visible;opacity:1;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:%23000;solid-opacity:1;vector-effect:none;fill:%23000;fill-opacity:.4;fill-rule:evenodd;stroke:none;stroke-width:2.47727823;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto' transform='translate(15.553 2.85)scale(.88807)'/%3E%3Cpath d='M-9.415-.316C-12.69-.338-15.37 2.14-15.39 5.207c-.017 2.716 1.326 4.041 2.78 5.477 1.013 1 2.081 2.055 2.78 3.67l.092.076a.34.34 0 0 0 .225.086.34.34 0 0 0 .227-.083l.019-.01c.022-.009.057-.024.074-.064.697-1.6 1.78-2.64 2.814-3.634 1.473-1.414 2.847-2.733 2.864-5.44.02-3.067-2.627-5.58-5.901-5.601m-.057 8.784c1.621.011 2.944-1.315 2.955-2.96.01-1.646-1.295-2.988-2.916-2.999-1.622-.01-2.945 1.315-2.955 2.96s1.295 2.989 2.916 3' style='clip-rule:evenodd;fill:%23e1e3e9;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:2.47727823;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:.4' transform='translate(15.553 2.85)scale(.88807)'/%3E%3Cpath d='M-11.594 15.465c-.27-.002-.492.297-.494.668l-.012 1.876c-.003.371.214.673.485.675l4.14.027c.271.002.492-.298.495-.668l.012-1.877c.003-.37-.215-.672-.485-.674z' style='clip-rule:evenodd;fill:%23fff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:2.47727823;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:.4' transform='translate(15.553 2.85)scale(.88807)'/%3E%3C/g%3E%3C/svg%3E")}}@media (forced-colors:active) and (prefers-color-scheme:light){a.maplibregl-ctrl-logo{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='88' height='23' fill='none'%3E%3Cpath fill='%23000' fill-opacity='.4' fill-rule='evenodd' d='M17.408 16.796h-1.827l2.501-12.095h.198l3.324 6.533.988 2.19.988-2.19 3.258-6.533h.181l2.6 12.095h-1.81l-1.218-5.644-.362-1.71-.658 1.71-2.929 5.644h-.098l-2.914-5.644-.757-1.71-.345 1.71zm1.958-3.42-.726 3.663a1.255 1.255 0 0 1-1.232 1.011h-1.827a1.255 1.255 0 0 1-1.229-1.509l2.501-12.095a1.255 1.255 0 0 1 1.23-1.001h.197a1.25 1.25 0 0 1 1.12.685l3.19 6.273 3.125-6.263a1.25 1.25 0 0 1 1.123-.695h.181a1.255 1.255 0 0 1 1.227.991l1.443 6.71a5 5 0 0 1 .314-.787l.009-.016a4.6 4.6 0 0 1 1.777-1.887c.782-.46 1.668-.667 2.611-.667a4.6 4.6 0 0 1 1.7.32l.306.134c.21-.16.474-.256.759-.256h1.694a1.255 1.255 0 0 1 1.212.925 1.255 1.255 0 0 1 1.212-.925h1.711c.284 0 .545.094.755.252.613-.3 1.312-.45 2.075-.45 1.356 0 2.557.445 3.482 1.4q.47.48.763 1.064V4.701a1.255 1.255 0 0 1 1.255-1.255h1.86A1.255 1.255 0 0 1 54.44 4.7v9.194h2.217c.19 0 .37.043.532.118v-4.77c0-.356.147-.678.385-.906a2.42 2.42 0 0 1-.682-1.71c0-.665.267-1.253.735-1.7a2.45 2.45 0 0 1 1.722-.674 2.43 2.43 0 0 1 1.705.675q.318.302.504.683V4.7a1.255 1.255 0 0 1 1.255-1.255h1.744A1.255 1.255 0 0 1 65.812 4.7v3.335a4.8 4.8 0 0 1 1.526-.246c.938 0 1.817.214 2.59.69a4.47 4.47 0 0 1 1.67 1.743v-.98a1.255 1.255 0 0 1 1.256-1.256h1.777c.233 0 .451.064.639.174a3.4 3.4 0 0 1 1.567-.372c.346 0 .861.02 1.285.232a1.25 1.25 0 0 1 .689 1.004 4.7 4.7 0 0 1 .853-.588c.795-.44 1.675-.647 2.61-.647 1.385 0 2.65.39 3.525 1.396.836.938 1.168 2.173 1.168 3.528q-.001.515-.056 1.051a1.255 1.255 0 0 1-.947 1.09l.408.952a1.255 1.255 0 0 1-.477 1.552c-.418.268-.92.463-1.458.612-.613.171-1.304.244-2.049.244-1.06 0-2.043-.207-2.886-.698l-.015-.008c-.798-.48-1.419-1.135-1.818-1.963l-.004-.008a5.8 5.8 0 0 1-.548-2.512q0-.429.053-.843a1.3 1.3 0 0 1-.333-.086l-.166-.004c-.223 0-.426.062-.643.228-.03.024-.142.139-.142.59v3.883a1.255 1.255 0 0 1-1.256 1.256h-1.777a1.255 1.255 0 0 1-1.256-1.256V15.69l-.032.057a4.8 4.8 0 0 1-1.86 1.833 5.04 5.04 0 0 1-2.484.634 4.5 4.5 0 0 1-1.935-.424 1.25 1.25 0 0 1-.764.258h-1.71a1.255 1.255 0 0 1-1.256-1.255V7.687a2.4 2.4 0 0 1-.428.625c.253.23.412.561.412.93v7.553a1.255 1.255 0 0 1-1.256 1.255h-1.843a1.25 1.25 0 0 1-.894-.373c-.228.23-.544.373-.894.373H51.32a1.255 1.255 0 0 1-1.256-1.255v-1.251l-.061.117a4.7 4.7 0 0 1-1.782 1.884 4.77 4.77 0 0 1-2.485.67 5.6 5.6 0 0 1-1.485-.188l.009 2.764a1.255 1.255 0 0 1-1.255 1.259h-1.729a1.255 1.255 0 0 1-1.255-1.255v-3.537a1.255 1.255 0 0 1-1.167.793h-1.679a1.25 1.25 0 0 1-.77-.263 4.5 4.5 0 0 1-1.945.429c-.885 0-1.724-.21-2.495-.632l-.017-.01a5 5 0 0 1-1.081-.836 1.255 1.255 0 0 1-1.254 1.312h-1.81a1.255 1.255 0 0 1-1.228-.99l-.782-3.625-2.044 3.939a1.25 1.25 0 0 1-1.115.676h-.098a1.25 1.25 0 0 1-1.116-.68l-2.061-3.994zM35.92 16.63l.207-.114.223-.15q.493-.356.735-.785l.061-.118.033 1.332h1.678V9.242h-1.694l-.033 1.267q-.133-.329-.526-.658l-.032-.028a3.2 3.2 0 0 0-.668-.428l-.27-.12a3.3 3.3 0 0 0-1.235-.23q-1.136-.001-1.974.493a3.36 3.36 0 0 0-1.3 1.382q-.445.89-.444 2.074 0 1.2.51 2.107a3.8 3.8 0 0 0 1.382 1.381 3.9 3.9 0 0 0 1.893.477q.795 0 1.455-.33zm-2.789-5.38q-.576.675-.575 1.762 0 1.102.559 1.794.576.675 1.645.675a2.25 2.25 0 0 0 .934-.19 2.2 2.2 0 0 0 .468-.29l.178-.161a2.2 2.2 0 0 0 .397-.561q.244-.5.244-1.15v-.115q0-.708-.296-1.267l-.043-.077a2.2 2.2 0 0 0-.633-.709l-.13-.086-.047-.028a2.1 2.1 0 0 0-1.073-.285q-1.052 0-1.629.692zm2.316 2.706c.163-.17.28-.407.28-.83v-.114c0-.292-.06-.508-.15-.68a.96.96 0 0 0-.353-.389.85.85 0 0 0-.464-.127c-.4 0-.56.114-.664.239l-.01.012c-.148.174-.275.45-.275.945 0 .506.122.801.27.99.097.11.266.224.68.224.303 0 .504-.09.687-.269zm7.545 1.705a2.6 2.6 0 0 0 .331.423q.319.33.755.548l.173.074q.65.255 1.49.255 1.02 0 1.844-.493a3.45 3.45 0 0 0 1.316-1.4q.493-.904.493-2.089 0-1.909-.988-2.913-.988-1.02-2.584-1.02-.898 0-1.575.347a3 3 0 0 0-.415.262l-.199.166a3.4 3.4 0 0 0-.64.82V9.242h-1.712v11.553h1.729l-.017-5.134zm.53-1.138q.206.29.48.5l.155.11.053.034q.51.296 1.119.297 1.07 0 1.645-.675.577-.69.576-1.762 0-1.119-.576-1.777-.558-.675-1.645-.675-.435 0-.835.16a2 2 0 0 0-.284.136 2 2 0 0 0-.363.254 2.2 2.2 0 0 0-.46.569l-.082.162a2.6 2.6 0 0 0-.213 1.072v.115q0 .707.296 1.267l.135.211zm.964-.818a1.1 1.1 0 0 0 .367.385.94.94 0 0 0 .476.118c.423 0 .59-.117.687-.23.159-.194.28-.478.28-.95 0-.53-.133-.8-.266-.952l-.021-.025c-.078-.094-.231-.221-.68-.221a1 1 0 0 0-.503.135l-.012.007a.86.86 0 0 0-.335.343c-.073.133-.132.324-.132.614v.115a1.4 1.4 0 0 0 .14.66zm15.7-6.222q.347-.346.346-.856a1.05 1.05 0 0 0-.345-.79 1.18 1.18 0 0 0-.84-.329q-.51 0-.855.33a1.05 1.05 0 0 0-.346.79q0 .51.346.855.345.346.856.346.51 0 .839-.346zm4.337 9.314.033-1.332q.191.403.59.747l.098.081a4 4 0 0 0 .316.224l.223.122a3.2 3.2 0 0 0 1.44.322 3.8 3.8 0 0 0 1.875-.477 3.5 3.5 0 0 0 1.382-1.366q.527-.89.526-2.09 0-1.184-.444-2.073a3.24 3.24 0 0 0-1.283-1.399q-.823-.51-1.942-.51a3.5 3.5 0 0 0-1.527.344l-.086.043-.165.09a3 3 0 0 0-.33.214q-.432.315-.656.707a2 2 0 0 0-.099.198l.082-1.283V4.701h-1.744v12.095zm.473-2.509a2.5 2.5 0 0 0 .566.7q.117.098.245.18l.144.08a2.1 2.1 0 0 0 .975.232q1.07 0 1.645-.675.576-.69.576-1.778 0-1.102-.576-1.777-.56-.691-1.645-.692a2.2 2.2 0 0 0-1.015.235q-.22.113-.415.282l-.15.142a2.1 2.1 0 0 0-.42.594q-.223.479-.223 1.1v.115q0 .705.293 1.26zm2.616-.293c.157-.191.28-.479.28-.967 0-.51-.13-.79-.276-.961l-.021-.026c-.082-.1-.232-.225-.67-.225a.87.87 0 0 0-.681.279l-.012.011c-.154.155-.274.38-.274.807v.115c0 .285.057.499.144.669a1.1 1.1 0 0 0 .367.405c.137.082.28.123.455.123.423 0 .59-.118.686-.23zm8.266-3.013q.345-.13.724-.14l.069-.002q.493 0 .642.099l.247-1.794q-.196-.099-.717-.099a2.3 2.3 0 0 0-.545.063 2 2 0 0 0-.411.148 2.2 2.2 0 0 0-.4.249 2.5 2.5 0 0 0-.485.499 2.7 2.7 0 0 0-.32.581l-.05.137v-1.48h-1.778v7.553h1.777v-3.884q0-.546.159-.943a1.5 1.5 0 0 1 .466-.636 2.5 2.5 0 0 1 .399-.253 2 2 0 0 1 .224-.099zm9.784 2.656.05-.922q0-1.743-.856-2.698-.838-.97-2.584-.97-1.119-.001-2.007.493a3.46 3.46 0 0 0-1.4 1.382q-.493.906-.493 2.106 0 1.07.428 1.975.428.89 1.332 1.432.906.526 2.255.526.973 0 1.668-.185l.044-.012.135-.04q.613-.184.984-.421l-.542-1.267q-.3.162-.642.274l-.297.087q-.51.131-1.3.131-.954 0-1.497-.444a1.6 1.6 0 0 1-.192-.193q-.366-.44-.512-1.234l-.004-.021zm-5.427-1.256-.003.022h3.752v-.138q-.011-.727-.288-1.118a1 1 0 0 0-.156-.176q-.46-.428-1.316-.428-.986 0-1.494.604-.379.45-.494 1.234zm-27.053 2.77V4.7h-1.86v12.095h5.333V15.15zm7.103-5.908v7.553h-1.843V9.242h1.843z'/%3E%3Cpath fill='%23fff' d='m19.63 11.151-.757-1.71-.345 1.71-1.12 5.644h-1.827L18.083 4.7h.197l3.325 6.533.988 2.19.988-2.19L26.839 4.7h.181l2.6 12.095h-1.81l-1.218-5.644-.362-1.71-.658 1.71-2.93 5.644h-.098l-2.913-5.644zm14.836 5.81q-1.02 0-1.893-.478a3.8 3.8 0 0 1-1.381-1.382q-.51-.906-.51-2.106 0-1.185.444-2.074a3.36 3.36 0 0 1 1.3-1.382q.839-.494 1.974-.494a3.3 3.3 0 0 1 1.234.231 3.3 3.3 0 0 1 .97.575q.396.33.527.659l.033-1.267h1.694v7.553H37.18l-.033-1.332q-.279.593-1.02 1.053a3.17 3.17 0 0 1-1.662.444zm.296-1.482q.938 0 1.58-.642.642-.66.642-1.711v-.115q0-.708-.296-1.267a2.2 2.2 0 0 0-.807-.872 2.1 2.1 0 0 0-1.119-.313q-1.053 0-1.629.692-.575.675-.575 1.76 0 1.103.559 1.795.577.675 1.645.675zm6.521-6.237h1.711v1.4q.906-1.597 2.83-1.597 1.596 0 2.584 1.02.988 1.005.988 2.914 0 1.185-.493 2.09a3.46 3.46 0 0 1-1.316 1.399 3.5 3.5 0 0 1-1.844.493q-.954 0-1.662-.329a2.67 2.67 0 0 1-1.086-.97l.017 5.134h-1.728zm4.048 6.22q1.07 0 1.645-.674.577-.69.576-1.762 0-1.119-.576-1.777-.558-.675-1.645-.675-.592 0-1.12.296-.51.28-.822.823-.296.527-.296 1.234v.115q0 .708.296 1.267.313.543.823.855.51.296 1.119.297z'/%3E%3Cpath fill='%23e1e3e9' d='M51.325 4.7h1.86v10.45h3.473v1.646h-5.333zm7.12 4.542h1.843v7.553h-1.843zm.905-1.415a1.16 1.16 0 0 1-.856-.346 1.17 1.17 0 0 1-.346-.856 1.05 1.05 0 0 1 .346-.79q.346-.329.856-.329.494 0 .839.33a1.05 1.05 0 0 1 .345.79 1.16 1.16 0 0 1-.345.855q-.33.346-.84.346zm7.875 9.133a3.17 3.17 0 0 1-1.662-.444q-.723-.46-1.004-1.053l-.033 1.332h-1.71V4.701h1.743v4.657l-.082 1.283q.279-.658 1.086-1.119a3.5 3.5 0 0 1 1.778-.477q1.119 0 1.942.51a3.24 3.24 0 0 1 1.283 1.4q.445.888.444 2.072 0 1.201-.526 2.09a3.5 3.5 0 0 1-1.382 1.366 3.8 3.8 0 0 1-1.876.477zm-.296-1.481q1.069 0 1.645-.675.577-.69.577-1.778 0-1.102-.577-1.776-.56-.691-1.645-.692a2.12 2.12 0 0 0-1.58.659q-.642.641-.642 1.694v.115q0 .71.296 1.267a2.4 2.4 0 0 0 .807.872 2.1 2.1 0 0 0 1.119.313zm5.927-6.237h1.777v1.481q.263-.757.856-1.217a2.14 2.14 0 0 1 1.349-.46q.527 0 .724.098l-.247 1.794q-.149-.099-.642-.099-.774 0-1.416.494-.626.493-.626 1.58v3.883h-1.777V9.242zm9.534 7.718q-1.35 0-2.255-.526-.904-.543-1.332-1.432a4.6 4.6 0 0 1-.428-1.975q0-1.2.493-2.106a3.46 3.46 0 0 1 1.4-1.382q.889-.495 2.007-.494 1.744 0 2.584.97.855.956.856 2.7 0 .444-.05.92h-5.43q.18 1.005.708 1.45.542.443 1.497.443.79 0 1.3-.131a4 4 0 0 0 .938-.362l.542 1.267q-.411.263-1.119.46-.708.198-1.711.197zm1.596-4.558q.016-1.02-.444-1.432-.46-.428-1.316-.428-1.728 0-1.991 1.86z'/%3E%3Cpath d='M5.074 15.948a.484.657 0 0 0-.486.659v1.84a.484.657 0 0 0 .486.659h4.101a.484.657 0 0 0 .486-.659v-1.84a.484.657 0 0 0-.486-.659zm3.56 1.16H5.617v.838h3.017z' style='fill:%23fff;fill-rule:evenodd;stroke-width:1.03600001'/%3E%3Cg style='stroke-width:1.12603545'%3E%3Cpath d='M-9.408-1.416c-3.833-.025-7.056 2.912-7.08 6.615-.02 3.08 1.653 4.832 3.107 6.268.903.892 1.721 1.74 2.32 2.902l-.525-.004c-.543-.003-.992.304-1.24.639a1.87 1.87 0 0 0-.362 1.121l-.011 1.877c-.003.402.104.787.347 1.125.244.338.688.653 1.23.656l4.142.028c.542.003.99-.306 1.238-.641a1.87 1.87 0 0 0 .363-1.121l.012-1.875a1.87 1.87 0 0 0-.348-1.127c-.243-.338-.688-.653-1.23-.656l-.518-.004c.597-1.145 1.425-1.983 2.348-2.87 1.473-1.414 3.18-3.149 3.2-6.226-.016-3.59-2.923-6.684-6.993-6.707m-.006 1.1v.002c3.274.02 5.92 2.532 5.9 5.6-.017 2.706-1.39 4.026-2.863 5.44-1.034.994-2.118 2.033-2.814 3.633-.018.041-.052.055-.075.065q-.013.004-.02.01a.34.34 0 0 1-.226.084.34.34 0 0 1-.224-.086l-.092-.077c-.699-1.615-1.768-2.669-2.781-3.67-1.454-1.435-2.797-2.762-2.78-5.478.02-3.067 2.7-5.545 5.975-5.523m-.02 2.826c-1.62-.01-2.944 1.315-2.955 2.96-.01 1.646 1.295 2.988 2.916 2.999h.002c1.621.01 2.943-1.316 2.953-2.961.011-1.646-1.294-2.988-2.916-2.998m-.005 1.1c1.017.006 1.829.83 1.822 1.89s-.83 1.874-1.848 1.867c-1.018-.006-1.829-.83-1.822-1.89s.83-1.874 1.848-1.868m-2.155 11.857 4.14.025c.271.002.49.305.487.676l-.013 1.875c-.003.37-.224.67-.495.668l-4.14-.025c-.27-.002-.487-.306-.485-.676l.012-1.875c.003-.37.224-.67.494-.668' style='color:%23000;font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:medium;line-height:normal;font-family:sans-serif;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-feature-settings:normal;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:%23000;letter-spacing:normal;word-spacing:normal;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:start;white-space:normal;shape-padding:0;clip-rule:evenodd;display:inline;overflow:visible;visibility:visible;opacity:1;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:%23000;solid-opacity:1;vector-effect:none;fill:%23000;fill-opacity:.4;fill-rule:evenodd;stroke:none;stroke-width:2.47727823;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto' transform='translate(15.553 2.85)scale(.88807)'/%3E%3Cpath d='M-9.415-.316C-12.69-.338-15.37 2.14-15.39 5.207c-.017 2.716 1.326 4.041 2.78 5.477 1.013 1 2.081 2.055 2.78 3.67l.092.076a.34.34 0 0 0 .225.086.34.34 0 0 0 .227-.083l.019-.01c.022-.009.057-.024.074-.064.697-1.6 1.78-2.64 2.814-3.634 1.473-1.414 2.847-2.733 2.864-5.44.02-3.067-2.627-5.58-5.901-5.601m-.057 8.784c1.621.011 2.944-1.315 2.955-2.96.01-1.646-1.295-2.988-2.916-2.999-1.622-.01-2.945 1.315-2.955 2.96s1.295 2.989 2.916 3' style='clip-rule:evenodd;fill:%23e1e3e9;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:2.47727823;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:.4' transform='translate(15.553 2.85)scale(.88807)'/%3E%3Cpath d='M-11.594 15.465c-.27-.002-.492.297-.494.668l-.012 1.876c-.003.371.214.673.485.675l4.14.027c.271.002.492-.298.495-.668l.012-1.877c.003-.37-.215-.672-.485-.674z' style='clip-rule:evenodd;fill:%23fff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:2.47727823;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:.4' transform='translate(15.553 2.85)scale(.88807)'/%3E%3C/g%3E%3C/svg%3E")}}.maplibregl-ctrl.maplibregl-ctrl-attrib{background-color:hsla(0,0%,100%,.5);margin:0;padding:0 5px}@media screen{.maplibregl-ctrl-attrib.maplibregl-compact{background-color:#fff;border-radius:12px;box-sizing:content-box;color:#000;margin:10px;min-height:20px;padding:2px 24px 2px 0;position:relative}.maplibregl-ctrl-attrib.maplibregl-compact-show{padding:2px 28px 2px 8px;visibility:visible}.maplibregl-ctrl-bottom-left>.maplibregl-ctrl-attrib.maplibregl-compact-show,.maplibregl-ctrl-top-left>.maplibregl-ctrl-attrib.maplibregl-compact-show{border-radius:12px;padding:2px 8px 2px 28px}.maplibregl-ctrl-attrib.maplibregl-compact .maplibregl-ctrl-attrib-inner{display:none}.maplibregl-ctrl-attrib-button{background-color:hsla(0,0%,100%,.5);background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill-rule='evenodd' viewBox='0 0 20 20'%3E%3Cpath d='M4 10a6 6 0 1 0 12 0 6 6 0 1 0-12 0m5-3a1 1 0 1 0 2 0 1 1 0 1 0-2 0m0 3a1 1 0 1 1 2 0v3a1 1 0 1 1-2 0'/%3E%3C/svg%3E");border:0;border-radius:12px;box-sizing:border-box;cursor:pointer;display:none;height:24px;outline:none;position:absolute;right:0;top:0;width:24px}.maplibregl-ctrl-attrib summary.maplibregl-ctrl-attrib-button{-webkit-appearance:none;-moz-appearance:none;appearance:none;list-style:none}.maplibregl-ctrl-attrib summary.maplibregl-ctrl-attrib-button::-webkit-details-marker{display:none}.maplibregl-ctrl-bottom-left .maplibregl-ctrl-attrib-button,.maplibregl-ctrl-top-left .maplibregl-ctrl-attrib-button{left:0}.maplibregl-ctrl-attrib.maplibregl-compact .maplibregl-ctrl-attrib-button,.maplibregl-ctrl-attrib.maplibregl-compact-show .maplibregl-ctrl-attrib-inner{display:block}.maplibregl-ctrl-attrib.maplibregl-compact-show .maplibregl-ctrl-attrib-button{background-color:rgba(0,0,0,.05)}.maplibregl-ctrl-bottom-right>.maplibregl-ctrl-attrib.maplibregl-compact:after{bottom:0;right:0}.maplibregl-ctrl-top-right>.maplibregl-ctrl-attrib.maplibregl-compact:after{right:0;top:0}.maplibregl-ctrl-top-left>.maplibregl-ctrl-attrib.maplibregl-compact:after{left:0;top:0}.maplibregl-ctrl-bottom-left>.maplibregl-ctrl-attrib.maplibregl-compact:after{bottom:0;left:0}}@media screen and (forced-colors:active){.maplibregl-ctrl-attrib.maplibregl-compact:after{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='%23fff' fill-rule='evenodd' viewBox='0 0 20 20'%3E%3Cpath d='M4 10a6 6 0 1 0 12 0 6 6 0 1 0-12 0m5-3a1 1 0 1 0 2 0 1 1 0 1 0-2 0m0 3a1 1 0 1 1 2 0v3a1 1 0 1 1-2 0'/%3E%3C/svg%3E")}}@media screen and (forced-colors:active) and (prefers-color-scheme:light){.maplibregl-ctrl-attrib.maplibregl-compact:after{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill-rule='evenodd' viewBox='0 0 20 20'%3E%3Cpath d='M4 10a6 6 0 1 0 12 0 6 6 0 1 0-12 0m5-3a1 1 0 1 0 2 0 1 1 0 1 0-2 0m0 3a1 1 0 1 1 2 0v3a1 1 0 1 1-2 0'/%3E%3C/svg%3E")}}.maplibregl-ctrl-attrib a{color:rgba(0,0,0,.75);text-decoration:none}.maplibregl-ctrl-attrib a:hover{color:inherit;text-decoration:underline}.maplibregl-attrib-empty{display:none}.maplibregl-ctrl-scale{background-color:hsla(0,0%,100%,.75);border:2px solid #333;border-top:#333;box-sizing:border-box;color:#333;font-size:10px;padding:0 5px;white-space:nowrap}.maplibregl-popup{display:flex;left:0;pointer-events:none;position:absolute;top:0;will-change:transform}.maplibregl-popup-anchor-top,.maplibregl-popup-anchor-top-left,.maplibregl-popup-anchor-top-right{flex-direction:column}.maplibregl-popup-anchor-bottom,.maplibregl-popup-anchor-bottom-left,.maplibregl-popup-anchor-bottom-right{flex-direction:column-reverse}.maplibregl-popup-anchor-left{flex-direction:row}.maplibregl-popup-anchor-right{flex-direction:row-reverse}.maplibregl-popup-tip{border:10px solid transparent;height:0;width:0;z-index:1}.maplibregl-popup-anchor-top .maplibregl-popup-tip{align-self:center;border-bottom-color:#fff;border-top:none}.maplibregl-popup-anchor-top-left .maplibregl-popup-tip{align-self:flex-start;border-bottom-color:#fff;border-left:none;border-top:none}.maplibregl-popup-anchor-top-right .maplibregl-popup-tip{align-self:flex-end;border-bottom-color:#fff;border-right:none;border-top:none}.maplibregl-popup-anchor-bottom .maplibregl-popup-tip{align-self:center;border-bottom:none;border-top-color:#fff}.maplibregl-popup-anchor-bottom-left .maplibregl-popup-tip{align-self:flex-start;border-bottom:none;border-left:none;border-top-color:#fff}.maplibregl-popup-anchor-bottom-right .maplibregl-popup-tip{align-self:flex-end;border-bottom:none;border-right:none;border-top-color:#fff}.maplibregl-popup-anchor-left .maplibregl-popup-tip{align-self:center;border-left:none;border-right-color:#fff}.maplibregl-popup-anchor-right .maplibregl-popup-tip{align-self:center;border-left-color:#fff;border-right:none}[dir=rtl] .maplibregl-popup-anchor-left{flex-direction:row-reverse}[dir=rtl] .maplibregl-popup-anchor-right{flex-direction:row}[dir=rtl] .maplibregl-popup-anchor-top-left .maplibregl-popup-tip{align-self:flex-end}[dir=rtl] .maplibregl-popup-anchor-top-right .maplibregl-popup-tip{align-self:flex-start}[dir=rtl] .maplibregl-popup-anchor-bottom-left .maplibregl-popup-tip{align-self:flex-end}[dir=rtl] .maplibregl-popup-anchor-bottom-right .maplibregl-popup-tip{align-self:flex-start}.maplibregl-popup-close-button{background-color:transparent;border:0;border-radius:0 3px 0 0;cursor:pointer;position:absolute;right:0;top:0}.maplibregl-popup-close-button:hover{background-color:rgba(0,0,0,.05)}.maplibregl-popup-content{background:#fff;border-radius:3px;box-shadow:0 1px 2px rgba(0,0,0,.1);padding:15px 10px;pointer-events:auto;position:relative}.maplibregl-popup-anchor-top-left .maplibregl-popup-content{border-top-left-radius:0}.maplibregl-popup-anchor-top-right .maplibregl-popup-content{border-top-right-radius:0}.maplibregl-popup-anchor-bottom-left .maplibregl-popup-content{border-bottom-left-radius:0}.maplibregl-popup-anchor-bottom-right .maplibregl-popup-content{border-bottom-right-radius:0}.maplibregl-popup-track-pointer{display:none}.maplibregl-popup-track-pointer *{pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.maplibregl-map:hover .maplibregl-popup-track-pointer{display:flex}.maplibregl-map:active .maplibregl-popup-track-pointer{display:none}.maplibregl-marker{left:0;position:absolute;top:0;transition:opacity .2s;will-change:transform}.maplibregl-user-location-dot,.maplibregl-user-location-dot:before{background-color:#1da1f2;border-radius:50%;height:15px;width:15px}.maplibregl-user-location-dot:before{animation:maplibregl-user-location-dot-pulse 2s infinite;content:"";position:absolute}.maplibregl-user-location-dot:after{border:2px solid #fff;border-radius:50%;box-shadow:0 0 3px rgba(0,0,0,.35);box-sizing:border-box;content:"";height:19px;left:-2px;position:absolute;top:-2px;width:19px}@media (prefers-reduced-motion:reduce){.maplibregl-user-location-dot:before{animation:none}}@keyframes maplibregl-user-location-dot-pulse{0%{opacity:1;transform:scale(1)}70%{opacity:0;transform:scale(3)}to{opacity:0;transform:scale(1)}}.maplibregl-user-location-dot-stale{background-color:#aaa}.maplibregl-user-location-dot-stale:after{display:none}.maplibregl-user-location-accuracy-circle{background-color:#1da1f233;border-radius:100%;height:1px;width:1px}.maplibregl-crosshair,.maplibregl-crosshair .maplibregl-interactive,.maplibregl-crosshair .maplibregl-interactive:active{cursor:crosshair}.maplibregl-boxzoom{background:#fff;border:2px dotted #202020;height:0;left:0;opacity:.5;position:absolute;top:0;width:0}.maplibregl-cooperative-gesture-screen{align-items:center;background:rgba(0,0,0,.4);color:#fff;display:flex;font-size:1.4em;inset:0;justify-content:center;line-height:1.2;opacity:0;padding:1rem;pointer-events:none;position:absolute;transition:opacity 1s ease 1s;z-index:99999}.maplibregl-cooperative-gesture-screen.maplibregl-show{opacity:1;transition:opacity .05s}.maplibregl-cooperative-gesture-screen .maplibregl-mobile-message{display:none}@media (hover:none),(pointer:coarse){.maplibregl-cooperative-gesture-screen .maplibregl-desktop-message{display:none}.maplibregl-cooperative-gesture-screen .maplibregl-mobile-message{display:block}}.maplibregl-pseudo-fullscreen{height:100%!important;left:0!important;position:fixed!important;top:0!important;width:100%!important;z-index:99999}
+.maplibregl-map { font: inherit; }
+/* Hub labels beside the hub dots: name plus a count */
+.hubtag { display: flex; align-items: center; gap: 8px; border: 0; background: var(--surface); color: var(--ink); border-radius: 8px; padding: 6px 8px 6px 12px;
+  font: inherit; font-size: 14px; font-weight: 700; line-height: 1.3; white-space: nowrap; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.3); transition: opacity .2s; }
+.hubtag b { font-size: 12px; font-weight: 700; color: #A9460B; background: #FEF0E6; border-radius: 6px; padding: 2px 7px; font-variant-numeric: tabular-nums; }
+.hubtag:hover { background: #F3F5F6; }
+.hubtag:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.far .hubtag { opacity: 0 !important; pointer-events: none; } /* MapLibre sets marker opacity inline */
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div id="root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@mui/material@5.16.7/umd/material-ui.production.min.js"></script>
+<script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/pmtiles@4.3.0/dist/pmtiles.js"></script>
+<script src="https://unpkg.com/@protomaps/basemaps@5.7.1/dist/basemaps.js"></script>
+<script>
+const { useState, useEffect, useMemo, useRef } = React;
+const html = htm.bind(React.createElement);
+const {
+  createTheme, ThemeProvider, CssBaseline, AppBar, Toolbar, Box, Paper, Typography, Button, IconButton, ToggleButton, ToggleButtonGroup,
+  List, ListItemButton, TextField, MenuItem, Chip, Card, CardContent, CardActions, LinearProgress, Link, Stack, useMediaQuery,
+  Stepper, Step, StepLabel, FormControlLabel, Checkbox,
+} = MaterialUI;
+
+/* ---------- data ---------- */
+const HUBS = [
+  { id: 'chi', name: 'Chicago', role: 'Headquarters, United States', lat: 41.88, lon: -87.63 },
+  { id: 'mos', name: 'Mosquera', role: 'Colombia hub', lat: 4.71, lon: -74.23 },
+  { id: 'dar', name: 'Dar es Salaam', role: 'Tanzania hub', lat: -6.79, lon: 39.21 },
+];
+const hubById = Object.fromEntries(HUBS.map(h => [h.id, h]));
+const COHORTS = [
+  ['all', 'All cohorts', ''],
+  ['g25', '2025 Goldin Global Fellows (English)', '2025 Global Fellows · English'],
+  ['g24', '2024 Goldin Global Fellows (English)', '2024 Global Fellows · English'],
+  ['g23es', '2023 Goldin Global Fellows (Spanish)', '2023 Global Fellows · Spanish'],
+  ['g23en', '2023 Goldin Global Fellows (English)', '2023 Global Fellows · English'],
+  ['g22es', '2022 Goldin Global Fellows (Spanish)', '2022 Global Fellows · Spanish'],
+  ['g22en', '2022 Goldin Global Fellows (English)', '2022 Global Fellows · English'],
+  ['g21', '2021 Goldin Global Fellows', '2021 Global Fellows'],
+  ['g18', '2018 Goldin Global Fellows', '2018 Global Fellows'],
+  ['cpf', 'Chicago Peace Fellows', 'Chicago Peace Fellows'],
+  ['team', 'Goldin team', 'Goldin team'],
+];
+const COHORT_NAME = Object.fromEntries(COHORTS.map(c => [c[0], c[2]]));
+// ponytail: sample focus areas; replace with the categories Goldin uses for alumni organizations.
+const FOCUS = [
+  ['food', 'Food security'], ['survivors', 'Victim & survivor support'], ['housing', 'Housing & homelessness'], ['youth', 'Youth & education'],
+  ['peace', 'Violence prevention'], ['women', 'Women & girls'], ['health', 'Health'], ['environment', 'Environment & climate'],
+];
+const FOCUS_NAME = Object.fromEntries(FOCUS);
+// ponytail: sample locations — replace with the real alumni export (city, country, lat, lon, cohort, hub, focus area).
+const LOCATIONS = [
+  ['Nairobi','Kenya',-1.29,36.82,'g25','dar','housing'], ['Kampala','Uganda',0.35,32.58,'g24','dar','youth'], ['Kigali','Rwanda',-1.95,30.06,'g23en','dar','peace'],
+  ['Ngozi','Burundi',-2.91,29.83,'g24','dar','food'], ['Bujumbura','Burundi',-3.38,29.36,'g22en','dar','women'], ['Lagos','Nigeria',6.52,3.38,'g23en','dar','youth'],
+  ['Accra','Ghana',5.6,-0.19,'g21','dar','environment'], ['Freetown','Sierra Leone',8.48,-13.23,'g22en','dar','health'], ['Monrovia','Liberia',6.3,-10.8,'g21','dar','survivors'],
+  ['Kinshasa','DR Congo',-4.32,15.31,'g25','dar','survivors'], ['Lusaka','Zambia',-15.39,28.32,'g24','dar','food'], ['Harare','Zimbabwe',-17.83,31.05,'g18','dar','food'],
+  ['Johannesburg','South Africa',-26.2,28.05,'g22en','dar','housing'], ['Addis Ababa','Ethiopia',9.03,38.74,'g23en','dar','women'], ['Juba','South Sudan',4.85,31.58,'g25','dar','peace'],
+  ['Lilongwe','Malawi',-13.96,33.79,'g21','dar','health'], ['Kakamega','Kenya',0.28,34.75,'g24','dar','food'], ['Arusha','Tanzania',-3.37,36.68,'team','dar','environment'],
+  ['Medellín','Colombia',6.24,-75.58,'g23es','mos','peace'], ['Cali','Colombia',3.45,-76.53,'g22es','mos','youth'], ['Lima','Peru',-12.05,-77.04,'g23es','mos','housing'],
+  ['Quito','Ecuador',-0.18,-78.47,'g22es','mos','environment'], ['Caracas','Venezuela',10.48,-66.9,'g23es','mos','food'], ['Guatemala City','Guatemala',14.63,-90.51,'g22es','mos','survivors'],
+  ['Tegucigalpa','Honduras',14.07,-87.19,'g23es','mos','youth'], ['Mexico City','Mexico',19.43,-99.13,'g22es','mos','women'], ['Santiago','Chile',-33.45,-70.67,'g21','mos','housing'],
+  ['Buenos Aires','Argentina',-34.6,-58.38,'g18','mos','housing'], ['La Paz','Bolivia',-16.49,-68.12,'g23es','mos','women'], ['São Paulo','Brazil',-23.55,-46.63,'g21','mos','food'],
+  ['Port-au-Prince','Haiti',18.59,-72.31,'g18','mos','health'], ['San Salvador','El Salvador',13.69,-89.22,'g22es','mos','peace'],
+  ['Kuala Lumpur','Malaysia',3.14,101.69,'g24','chi','survivors'], ['Manila','Philippines',14.6,120.98,'g23en','chi','housing'], ['Dhaka','Bangladesh',23.81,90.41,'g22en','chi','women'],
+  ['Kathmandu','Nepal',27.72,85.32,'g25','chi','environment'], ['New Delhi','India',28.61,77.21,'g21','chi','food'], ['Karachi','Pakistan',24.86,67.0,'g23en','chi','health'],
+  ['Amman','Jordan',31.95,35.93,'g24','chi','survivors'], ['Beirut','Lebanon',33.89,35.5,'g18','chi','health'], ['Istanbul','Türkiye',41.0,28.98,'g22en','chi','youth'],
+  ['Belfast','United Kingdom',54.6,-5.93,'g18','chi','peace'], ['Kyiv','Ukraine',50.45,30.52,'g25','chi','survivors'], ['Jakarta','Indonesia',-6.2,106.85,'g24','chi','environment'],
+  ['Port Moresby','Papua New Guinea',-9.44,147.18,'g21','chi','women'],
+  // Chicago Peace Fellows sites. ponytail: approximate points; swap in the real site addresses.
+  [null,'United States',41.78,-87.6,'cpf','chi','peace'], [null,'United States',41.89,-87.73,'cpf','chi','youth'], [null,'United States',41.75,-87.65,'cpf','chi','housing'],
+].map(([name, country, lat, lon, cohort, hub, focus], id) => ({ id, name, country, lat, lon, cohort, hub, focus, site: !name }));
+const ATLAS_NAME = { 'DR Congo': 'Dem. Rep. Congo', 'Türkiye': 'Turkey', 'South Sudan': 'S. Sudan', 'United States': 'United States of America' };
+const atlasName = c => ATLAS_NAME[c] || c;
+const CHICAGO_BOX = [[-87.94, 41.64], [-87.52, 42.03]];
+const CHICAGO_REGIONS = [['North Side', 41.95, -87.69], ['West Side', 41.88, -87.73], ['South Side', 41.79, -87.63], ['Far South Side', 41.69, -87.62], ['Lake Michigan', 41.88, -87.45]];
+const pt = (lon, lat, properties = {}) => ({ type: 'Feature', properties, geometry: { type: 'Point', coordinates: [lon, lat] } });
+const fc = features => ({ type: 'FeatureCollection', features });
+
+/* ---------- basemap ---------- */
+// Tiles are Protomaps extracts published beside the page: the world to zoom 5 and Chicago to zoom 13. MapLibre overzooms
+// past the last level. The artifact host only serves web file types, so the binary tile and font files ship as base64 text.
+const bytes = url => fetch(url).then(r => { if (!r.ok) throw new Error(`${url}: ${r.status}`); return r.text(); })
+  .then(s => (Uint8Array.fromBase64 ? Uint8Array.fromBase64(s) : Uint8Array.from(atob(s), c => c.charCodeAt(0))).buffer);
+class WholeFile { // ponytail: downloads each archive once; on a real tile host use pmtiles' default HTTP range requests instead
+  constructor(url) { this.url = url; }
+  getKey() { return this.url; }
+  async getBytes(offset, length) { return { data: (await (this.buf ||= bytes(this.url))).slice(offset, offset + length) }; }
+}
+const archive = url => new pmtiles.PMTiles(new WholeFile(url));
+const ARCHIVES = {
+  world: [[4, archive('tiles/world-z0-4.txt')], [5, archive('tiles/world-z5.txt')]],
+  chi: [[13, archive('tiles/chicago-z6-13.txt')]],
+};
+maplibregl.addProtocol('gi', async params => {
+  const [, name, z, x, y] = params.url.match(/^gi:\/\/(\w+)\/(\d+)\/(\d+)\/(\d+)/);
+  const t = await ARCHIVES[name].find(([maxz]) => +z <= maxz)[1].getZxy(+z, +x, +y);
+  return { data: t ? new Uint8Array(t.data) : new Uint8Array() };
+});
+// Label fonts: Latin, Latin Extended and punctuation for each Noto Sans weight; other ranges come back empty.
+const GLYPH_RANGES = new Set(['0-255', '256-511', '8192-8447']);
+maplibregl.addProtocol('glyph', async params => {
+  const [, font, range] = decodeURIComponent(params.url).match(/^glyph:\/\/([^/,]+)[^/]*\/(\d+-\d+)/);
+  const name = font.toLowerCase().replace(/ /g, '-');
+  return { data: GLYPH_RANGES.has(range) && /^noto-sans-(regular|medium|italic)$/.test(name) ? await bytes(`glyphs/${name}-${range}.txt`) : new ArrayBuffer(0) };
+});
+
+// The Goldin palette applied to Protomaps' dark style: navy water, slate land, quiet roads, so orange is only ever alumni data.
+const FLAVOR = {
+  ...basemaps.namedFlavor('dark'),
+  background: '#0B151A', water: '#0B151A', earth: '#1B272D',
+  park_a: '#1C2C2A', park_b: '#1C2C2A', wood_a: '#1C2A29', wood_b: '#1C2A29', scrub_a: '#1D292C', scrub_b: '#1D292C',
+  hospital: '#1E2A30', industrial: '#1D282E', school: '#1E2A30', pedestrian: '#1E2A30', aerodrome: '#1E2A30', zoo: '#1C2C2A', military: '#1D282E',
+  sand: '#212C30', beach: '#243036', glacier: '#24323A', runway: '#2C3A42', pier: '#26343B', buildings: '#25333B',
+  other: '#26343B', minor_service: '#26343B', minor_a: '#2B3A42', minor_b: '#26343B', link: '#33434C', major: '#33434C', highway: '#3E4F59',
+  minor_service_casing: '#16232A', minor_casing: '#16232A', link_casing: '#16232A', major_casing_late: '#16232A', highway_casing_late: '#16232A',
+  major_casing_early: '#16232A', highway_casing_early: '#16232A', railway: '#2A3840',
+  bridges_other: '#26343B', bridges_minor: '#2B3A42', bridges_link: '#33434C', bridges_major: '#33434C', bridges_highway: '#3E4F59',
+  boundaries: '#56676F',
+  roads_label_minor: '#6E7E86', roads_label_minor_halo: '#16232A', roads_label_major: '#8695A0', roads_label_major_halo: '#16232A',
+  ocean_label: '#3D5560', subplace_label: '#8C9AA2', subplace_label_halo: '#0B151A', city_label: '#B4C0C6', city_label_halo: '#0B151A',
+  state_label: '#4D5E66', state_label_halo: '#0B151A', country_label: '#7D8D95', address_label: '#5F6F77', address_label_halo: '#16232A',
+  landcover: { grassland: '#1C2A29', barren: '#1F2A2F', urban_area: '#1E2A31', farmland: '#1C292A', glacier: '#24323A', scrub: '#1D292C', forest: '#1B2B28' },
+};
+const SKIP = new Set(['pois', 'roads_shields', 'roads_oneway']); // these need an icon sprite
+function basemap(src) {
+  return basemaps.layers(src, FLAVOR, { lang: 'en' }).filter(l => !SKIP.has(l.id) && !(src === 'chi' && l.type === 'background')).map(l => {
+    const out = { ...l, id: `${src}-${l.id}` };
+    // the detailed Chicago tiles take over from 7 (shapes) and 8 (labels)
+    if (src === 'world' && l.type === 'symbol') out.maxzoom = Math.min(l.maxzoom ?? 24, 8);
+    if (src === 'chi') out.minzoom = Math.max(l.minzoom ?? 0, l.type === 'symbol' ? 8 : 7);
+    return out;
+  });
+}
+
+/* ---------- palette ---------- */
+// Goldin's three colors (navy, white, orange) opened up into tonal steps, each with one job:
+//   orange 500 — alumni places and the one selected filter (the thing you're looking at)
+//   orange 300 — context: the edge of countries with alumni, group rings
+//   orange 50/700 — cohort tags on white
+//   ink — the page, the map, and selected controls; mist/slate — quiet surfaces and secondary text on white
+const C = {
+  ink950: '#05090B', ink900: '#0A1216', ink800: '#131F25', ink700: '#1C2A31', ink600: '#26363E', ink500: '#3B4C55', ink300: '#8E9AA0', ink200: '#C3CCD0',
+  white: '#FFFFFF', mist50: '#F3F5F6', mist100: '#E6EBED', mist200: '#D2DADE', slate500: '#5A6870', slate700: '#2C3940',
+  orange700: '#A9460B', orange600: '#D65608', orange500: '#F37023', orange300: '#F7A06D', orange50: '#FEF0E6',
+};
+const ORANGE = C.orange500, INK = C.ink900;
+
+/* ---------- theme ---------- */
+const theme = createTheme({
+  palette: {
+    primary: { main: C.orange500, dark: C.orange600, contrastText: C.white },
+    background: { default: C.ink900, paper: C.white },
+    text: { primary: C.ink900, secondary: C.slate500 },
+    divider: C.mist100,
+  },
+  shape: { borderRadius: 8 },
+  typography: {
+    fontFamily: '"Nunito Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+    fontWeightBold: 700,
+    button: { fontWeight: 700, letterSpacing: '.01em', textTransform: 'none', fontSize: 14 },
+  },
+  components: {
+    MuiButton: { defaultProps: { disableElevation: true }, styleOverrides: { root: { borderRadius: 999 } } },
+    MuiPaper: { defaultProps: { elevation: 0 } },
+    MuiCard: { styleOverrides: { root: { borderRadius: 12 } } },
+    MuiOutlinedInput: { styleOverrides: { root: { borderRadius: 8, fontSize: 14, fontWeight: 600 }, notchedOutline: { borderColor: C.mist200 } } },
+    MuiInputLabel: { styleOverrides: { root: { fontSize: 14 } } },
+    MuiToggleButtonGroup: { styleOverrides: { root: { background: C.mist50, borderRadius: 10, padding: 3, gap: 3 }, grouped: { border: 0, borderRadius: '8px !important', margin: 0 } } },
+    MuiToggleButton: { styleOverrides: { root: { border: 0, padding: '6px 14px', fontSize: 14, fontWeight: 700, textTransform: 'none', color: C.slate700, lineHeight: 1.4,
+      '&:hover': { background: C.mist100 },
+      '&.Mui-selected, &.Mui-selected:hover': { background: C.ink900, color: C.white } } } },
+    // step indicator: upcoming steps grey, the current step orange, finished steps navy
+    MuiStepIcon: { styleOverrides: { root: { color: C.mist200, width: 28, height: 28, '&.Mui-active': { color: C.orange500 }, '&.Mui-completed': { color: C.ink900 } }, text: { fontWeight: 700, fontSize: 12 } } },
+    MuiStepLabel: { styleOverrides: { label: { fontSize: 13, fontWeight: 600, color: C.slate500, '&.Mui-active, &.Mui-completed': { color: C.ink900, fontWeight: 700 } } } },
+    MuiStepConnector: { styleOverrides: { alternativeLabel: { top: 14, left: 'calc(-50% + 22px)', right: 'calc(50% + 22px)' }, line: { borderColor: C.mist200, borderTopWidth: 2 } } },
+  },
+});
+const gutter = { pl: 'max(16px, env(safe-area-inset-left, 0px))', pr: 'max(16px, env(safe-area-inset-right, 0px))' };
+const TONES = { orange: { color: C.orange700, bgcolor: C.orange50 }, neutral: { color: C.slate700, bgcolor: C.mist50, boxShadow: `inset 0 0 0 1px ${C.mist100}` } };
+const Tag = ({ tone = 'neutral', children }) => html`<${Box} component="span" sx=${{ display: 'inline-block', fontSize: 12, fontWeight: 600, lineHeight: 1.4,
+  borderRadius: '6px', px: 1.25, py: .5, whiteSpace: 'nowrap', ...TONES[tone] }}>${children}<//>`;
+const Meta = ({ children, sx }) => html`<${Typography} sx=${{ fontSize: 13, color: 'text.secondary', lineHeight: 1.5, ...sx }}>${children}<//>`;
+const Icon = ({ d }) => html`<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d=${d} stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>`;
+
+/* ---------- helpers ---------- */
+const inRing = ([x, y], r) => { let c = false; for (let i = 0, j = r.length - 1; i < r.length; j = i++) { const [xi, yi] = r[i], [xj, yj] = r[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c; };
+const inGeom = (p, g) => (g.type === 'Polygon' ? [g.coordinates] : g.coordinates).some(poly => inRing(p, poly[0]) && !poly.slice(1).some(h => inRing(p, h)));
+const placeName = (l, areaOf) => l.site ? (areaOf[l.id] || 'Chicago') : l.name;
+const placeSub = l => l.site ? 'Chicago Peace Fellows site' : l.country;
+const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+// The world view shows the whole height of the map (84°N to 60°S) and only scrolls sideways; zoomed in, you can pan anywhere
+// inside that band. Web Mercator y runs 0 (north) to 1 (south).
+const mercY = lat => (1 - Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360)) / Math.PI) / 2;
+const latOf = y => 360 / Math.PI * Math.atan(Math.exp((1 - 2 * y) * Math.PI)) - 90;
+const Y_TOP = mercY(84), Y_BOTTOM = mercY(-60);
+const fitZoom = h => Math.log2(h / (512 * (Y_BOTTOM - Y_TOP)));
+
+/* ---------- joining the map ---------- */
+const APPLY_STEPS = ['Organization', 'Focus areas', 'Contact', 'Review'];
+
+function JoinSection({ onApply, wide }) {
+  return html`<${Box} component="section" aria-labelledby="join-title" sx=${{ maxWidth: 1240, mx: 'auto', mt: 6, p: wide ? 5 : 3, borderRadius: '12px',
+      bgcolor: C.ink800, boxShadow: `inset 0 0 0 1px ${C.ink700}`, display: 'grid', gap: wide ? 6 : 3, gridTemplateColumns: wide ? 'minmax(0, 1.1fr) minmax(0, 1fr)' : 'minmax(0, 1fr)', alignItems: 'center' }}>
+    <${Box}>
+      <${Typography} id="join-title" component="h2" sx=${{ color: C.white, fontSize: wide ? 30 : 24, fontWeight: 800, lineHeight: 1.2, letterSpacing: '-.01em', textWrap: 'balance' }}>
+        Is your organization part of the Goldin network?<//>
+      <${Typography} sx=${{ color: C.ink200, fontSize: 16, lineHeight: 1.7, mt: 1.5, maxWidth: '52ch' }}>
+        Alumni organizations can apply to appear on this map, so partners and peers can find the work you do in your community. The Goldin team reviews every application before it goes on the map.<//>
+      <${Button} variant="contained" size="large" onClick=${onApply} sx=${{ mt: 3, px: 3.5, py: 1.25, fontSize: 15, fontWeight: 800 }}>Apply to join the map<//>
+    <//>
+    <${Box} component="ol" sx=${{ listStyle: 'none', m: 0, p: 0, display: 'grid', gap: 0 }} aria-label="What the application asks for">
+      ${['Tell us about your organization and where it works', 'Choose the focus areas that describe your work', 'Add a contact person for the Goldin team', 'Check your answers and send'].map((t, i) => html`
+        <${Box} component="li" key=${i} sx=${{ display: 'flex', gap: 2, alignItems: 'center', py: 1.75, borderTop: i ? `1px solid ${C.ink700}` : 0 }}>
+          <${Box} sx=${{ flex: 'none', width: 32, height: 32, borderRadius: '50%', display: 'grid', placeItems: 'center', fontSize: 14, fontWeight: 700,
+            color: C.orange300, boxShadow: `inset 0 0 0 1.5px ${C.orange300}` }}>${i + 1}<//>
+          <${Typography} sx=${{ color: C.white, fontSize: 15, fontWeight: 600 }}>${t}<//>
+        <//>`)}
+    <//>
+  <//>`;
+}
+
+const EMPTY_FORM = { org: '', website: '', country: '', city: '', address: '', focus: [], cohort: 'none', about: '', name: '', role: '', email: '', phone: '', consent: false };
+const ABOUT_MAX = 400;
+
+function ApplyPage({ onBack, wide }) {
+  const [step, setStep] = useState(0);
+  const [f, setF] = useState(EMPTY_FORM);
+  const [tried, setTried] = useState(false);
+  const [done, setDone] = useState(false);
+  const set = k => e => setF(v => ({ ...v, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
+  const errors = [
+    { org: !f.org.trim() && 'Enter your organization’s name', country: !f.country.trim() && 'Enter the country', city: !f.city.trim() && 'Enter the city or town',
+      website: f.website.trim() && !/^\S+\.\S+$/.test(f.website.trim()) && 'Enter a web address, like example.org' },
+    { focus: !f.focus.length && 'Choose at least one focus area', about: f.about.length > ABOUT_MAX && `Keep this under ${ABOUT_MAX} characters` },
+    { name: !f.name.trim() && 'Enter a contact name', email: !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email.trim()) && 'Enter an email address, like name@example.org',
+      consent: !f.consent && 'Tick this box so we can show your organization on the map' },
+    {},
+  ][step];
+  const err = k => tried && errors[k] || '';
+  const next = () => {
+    if (Object.values(errors).some(Boolean)) { setTried(true); return; }
+    setTried(false); window.scrollTo(0, 0);
+    step === APPLY_STEPS.length - 1 ? setDone(true) : setStep(step + 1);
+  };
+  const field = (k, label, extra = {}) => html`<${TextField} id=${'apply-' + k} label=${label} value=${f[k]} onChange=${set(k)} fullWidth
+    error=${!!err(k)} helperText=${err(k) || extra.hint || ' '} ...${extra.props || {}} />`;
+  const two = { display: 'grid', columnGap: 2, gridTemplateColumns: wide ? 'repeat(2, minmax(0, 1fr))' : 'minmax(0, 1fr)' };
+
+  const review = [
+    ['Organization', 0, [['Name', f.org], ['Website', f.website || '—'], ['Location', [f.city, f.country].filter(Boolean).join(', ')], ['Street address', f.address || '—']]],
+    ['Focus areas', 1, [['Focus areas', f.focus.map(id => FOCUS_NAME[id]).join(', ')], ['Goldin program', f.cohort === 'none' ? 'Not part of a cohort yet' : COHORT_NAME[f.cohort]], ['About your work', f.about || '—']]],
+    ['Contact', 2, [['Name', f.name], ['Role', f.role || '—'], ['Email', f.email], ['Phone', f.phone || '—']]],
+  ];
+
+  const body = [
+    html`<${Box}>
+      ${field('org', 'Organization name')}
+      ${field('website', 'Website (optional)', { props: { placeholder: 'example.org' } })}
+      <${Box} sx=${two}>${field('country', 'Country')}${field('city', 'City or town')}<//>
+      ${field('address', 'Street address (optional)', { hint: 'Helps us place you on the map. Only your city is shown publicly.' })}
+    <//>`,
+    html`<${Box}>
+      <${Typography} sx=${{ fontSize: 15, fontWeight: 700 }}>Which areas does your work focus on?<//>
+      <${Meta} sx=${{ mt: .25 }}>Choose all that apply. People can filter the map by these.<//>
+      <${Box} role="group" aria-label="Focus areas" sx=${{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 2 }}>
+        ${FOCUS.map(([id, label]) => {
+          const on = f.focus.includes(id);
+          return html`<${Chip} key=${id} label=${label} clickable aria-pressed=${on}
+            onClick=${() => setF(v => ({ ...v, focus: on ? v.focus.filter(x => x !== id) : [...v.focus, id] }))}
+            sx=${{ height: 36, borderRadius: '8px', fontSize: 14, fontWeight: 600, '& .MuiChip-label': { px: 1.75 },
+              ...(on ? { bgcolor: C.orange500, color: C.white, '&:hover': { bgcolor: C.orange600 } } : { bgcolor: C.white, color: C.slate700, boxShadow: `inset 0 0 0 1px ${C.mist200}`, '&:hover': { bgcolor: C.mist50 } }) }} />`;
+        })}
+      <//>
+      <${Typography} role="alert" sx=${{ color: 'error.main', fontSize: 12, mt: 1, minHeight: 20 }}>${err('focus')}<//>
+      <${TextField} select fullWidth id="apply-cohort" label="Goldin program" value=${f.cohort} onChange=${set('cohort')} helperText=" " sx=${{ mt: 1 }}>
+        <${MenuItem} value="none">Not part of a cohort yet<//>
+        ${COHORTS.filter(c => c[0] !== 'all').map(([id, label]) => html`<${MenuItem} key=${id} value=${id}>${label}<//>`)}
+      <//>
+      ${field('about', 'About your work (optional)', { hint: `${f.about.length} / ${ABOUT_MAX} characters`, props: { multiline: true, minRows: 4 } })}
+    <//>`,
+    html`<${Box}>
+      <${Box} sx=${two}>${field('name', 'Contact name')}${field('role', 'Role (optional)')}<//>
+      <${Box} sx=${two}>${field('email', 'Email', { props: { type: 'email', autoComplete: 'email' } })}${field('phone', 'Phone (optional)', { props: { type: 'tel', autoComplete: 'tel' } })}<//>
+      <${FormControlLabel} sx=${{ alignItems: 'flex-start', mt: 1, mr: 0 }}
+        control=${html`<${Checkbox} id="apply-consent" checked=${f.consent} onChange=${set('consent')} sx=${{ mt: -.75 }} />`}
+        label=${html`<${Typography} sx=${{ fontSize: 14, lineHeight: 1.6 }}>Goldin Institute may show our organization’s name, city and focus areas on the public alumni map.<//>`} />
+      <${Typography} role="alert" sx=${{ color: 'error.main', fontSize: 12, mt: .5, ml: 4, minHeight: 20 }}>${err('consent')}<//>
+    <//>`,
+    html`<${Box} sx=${{ display: 'grid', gap: 2.5 }}>
+      ${review.map(([title, s, rows]) => html`<${Box} key=${title}>
+        <${Stack} direction="row" justifyContent="space-between" alignItems="center" sx=${{ mb: 1 }}>
+          <${Typography} sx=${{ fontSize: 15, fontWeight: 700 }}>${title}<//>
+          <${Button} size="small" onClick=${() => setStep(s)} sx=${{ color: C.orange600 }}>Edit<//>
+        <//>
+        <${Box} component="dl" sx=${{ m: 0, borderTop: `1px solid ${C.mist100}` }}>
+          ${rows.map(([k, v]) => html`<${Box} key=${k} sx=${{ display: 'grid', gridTemplateColumns: wide ? '180px minmax(0, 1fr)' : 'minmax(0, 1fr)', gap: wide ? 2 : .25, py: 1.25, borderBottom: `1px solid ${C.mist100}` }}>
+            <${Box} component="dt" sx=${{ fontSize: 14, color: 'text.secondary' }}>${k}<//>
+            <${Box} component="dd" sx=${{ m: 0, fontSize: 14, fontWeight: 600, overflowWrap: 'anywhere' }}>${v}<//>
+          <//>`)}
+        <//>
+      <//>`)}
+    <//>`,
+  ][step];
+
+  return html`<${Box} component="main" sx=${{ ...gutter, py: wide ? 5 : 3 }}>
+    <${Box} sx=${{ maxWidth: 760, mx: 'auto' }}>
+      <${Button} onClick=${onBack} startIcon=${html`<${Icon} d="M10 3L5 8l5 5" />`} sx=${{ color: C.ink200, ml: -1, '&:hover': { bgcolor: C.ink800 } }}>Back to the alumni map<//>
+      <${Typography} component="h1" sx=${{ color: C.white, fontSize: wide ? 34 : 26, fontWeight: 800, lineHeight: 1.2, letterSpacing: '-.01em', mt: 2 }}>Apply to join the alumni map<//>
+      <${Typography} sx=${{ color: C.ink200, fontSize: 16, lineHeight: 1.7, mt: 1, maxWidth: '58ch' }}>
+        It takes about five minutes. You can go back and change anything before you send it.<//>
+
+      ${done ? html`<${Paper} sx=${{ mt: 4, p: wide ? 5 : 3, borderRadius: '12px' }}>
+          <${Box} sx=${{ width: 44, height: 44, borderRadius: '50%', bgcolor: C.orange50, color: C.orange600, display: 'grid', placeItems: 'center' }}><${Icon} d="M3.5 8.5l3 3 6-7" /><//>
+          <${Typography} component="h2" sx=${{ fontSize: 24, fontWeight: 800, mt: 2 }}>Application complete<//>
+          <${Typography} sx=${{ fontSize: 16, lineHeight: 1.7, mt: 1, color: 'text.secondary', maxWidth: '56ch' }}>
+            This is a prototype, so nothing was sent. On the live site, ${f.org || 'your organization'}’s application would go to the Goldin network team, who review it before it appears on the map.<//>
+          <${Button} variant="contained" onClick=${onBack} sx=${{ mt: 3, px: 3 }}>Back to the alumni map<//>
+        <//>`
+      : html`<${Paper} component="form" noValidate onSubmit=${e => { e.preventDefault(); next(); }} sx=${{ mt: 4, borderRadius: '12px', overflow: 'hidden' }}>
+          <${Box} sx=${{ px: wide ? 5 : 2, pt: 3.5, pb: 3, borderBottom: `1px solid ${C.mist100}`, bgcolor: C.mist50 }}>
+            <${Stepper} activeStep=${step} alternativeLabel>
+              ${APPLY_STEPS.map((label, i) => html`<${Step} key=${label} completed=${i < step}><${StepLabel}>${label}<//><//>`)}
+            <//>
+          <//>
+          <${Box} sx=${{ p: wide ? 5 : 2.5, pt: wide ? 4 : 3 }}>
+            <${Meta}>Step ${step + 1} of ${APPLY_STEPS.length}<//>
+            <${Typography} component="h2" sx=${{ fontSize: 22, fontWeight: 800, mt: .25, mb: 3 }}>${['About your organization', 'Your work', 'Who should we contact?', 'Check your answers'][step]}<//>
+            ${body}
+          <//>
+          <${Stack} direction="row" justifyContent="space-between" sx=${{ px: wide ? 5 : 2.5, py: 2.5, borderTop: `1px solid ${C.mist100}` }}>
+            ${step > 0 ? html`<${Button} onClick=${() => { setTried(false); setStep(step - 1); }} sx=${{ color: C.slate700, px: 2 }}>Back<//>` : html`<span />`}
+            <${Button} type="submit" variant="contained" sx=${{ px: 3.5 }}>${step === APPLY_STEPS.length - 1 ? 'Send application' : 'Continue'}<//>
+          <//>
+        <//>`}
+    <//>
+  <//>`;
+}
+
+/* ---------- app ---------- */
+function App() {
+  const wide = useMediaQuery(theme.breakpoints.up('md'));
+  const [page, setPage] = useState(location.hash === '#apply' ? 'apply' : 'network'); // #apply opens the form directly
+  const [view, setView] = useState('map');
+  const [place, setPlace] = useState('world');
+  const [cohort, setCohort] = useState('all');
+  const [focus, setFocus] = useState([]);
+  const [pick, setPick] = useState(null);
+  const [areaOf, setAreaOf] = useState({});
+  const [, setTick] = useState(0);
+  const mapEl = useRef(null), mapRef = useRef(null), placed = useRef(false), ready = useRef(false), hubEls = useRef({}), wideRef = useRef(wide);
+  wideRef.current = wide;
+
+  const shown = useMemo(() => LOCATIONS.filter(l => (cohort === 'all' || l.cohort === cohort) && (!focus.length || focus.includes(l.focus))), [cohort, focus]);
+  const countries = useMemo(() => [...new Set(shown.map(l => l.country))], [shown]);
+
+  // map setup, once
+  useEffect(() => {
+    const el = mapEl.current;
+    const map = new maplibregl.Map({
+      container: el, attributionControl: false, renderWorldCopies: true, minZoom: 0, maxZoom: 17,
+      dragRotate: false, pitchWithRotate: false, touchPitch: false, scrollZoom: false, center: [0, 20], zoom: 1,
+      transformConstrain: (lngLat, zoom) => {
+        const h = el.clientHeight || 1, z = Math.max(zoom, fitZoom(h)), half = h / 2 / (512 * 2 ** z);
+        return { center: new maplibregl.LngLat(lngLat.lng, latOf(clamp(mercY(lngLat.lat), Y_TOP + half, Y_BOTTOM - half))), zoom: z };
+      },
+      style: {
+        version: 8, glyphs: 'glyph://{fontstack}/{range}',
+        sources: {
+          world: { type: 'vector', tiles: ['gi://world/{z}/{x}/{y}'], maxzoom: 5 },
+          chi: { type: 'vector', tiles: ['gi://chi/{z}/{x}/{y}'], minzoom: 6, maxzoom: 13, bounds: [-87.96, 41.63, -87.5, 42.04] },
+        },
+        layers: [...basemap('world'), ...basemap('chi')].sort((a, b) => (a.type === 'symbol') - (b.type === 'symbol')),
+      },
+    });
+    mapRef.current = map;
+    map.touchZoomRotate.disableRotation();
+    // the basemap's town dots come from an icon sprite; draw a plain dot instead
+    map.on('styleimagemissing', ({ id }) => {
+      if (map.hasImage(id)) return;
+      const n = 8, data = new Uint8Array(n * n * 4);
+      if (id === 'townspot' || id === 'capital') for (let y = 0; y < n; y++) for (let x = 0; x < n; x++)
+        if ((x - 3.5) ** 2 + (y - 3.5) ** 2 < 7) data.set([180, 192, 198, 255], (y * n + x) * 4);
+      map.addImage(id, { width: n, height: n, data }, { pixelRatio: 2 });
+    });
+    home(map, false);
+
+    // Shift + scroll (or a trackpad pinch) zooms; a plain scroll moves the page
+    map.getCanvasContainer().addEventListener('wheel', e => {
+      if (!e.shiftKey && !e.ctrlKey) return;
+      e.preventDefault();
+      const r = map.getCanvasContainer().getBoundingClientRect(), d = e.deltaY || e.deltaX;
+      map.zoomTo(map.getZoom() - d * (e.ctrlKey ? .01 : .004), { around: map.unproject([e.clientX - r.left, e.clientY - r.top]), duration: 0 });
+    }, { passive: false });
+
+    map.once('style.load', async () => {
+      const ov = await fetch('overlays.json').then(r => r.json());
+      const firstLabel = map.getStyle().layers.find(l => l.type === 'symbol').id;
+      map.addSource('countries', { type: 'geojson', data: ov.countries, promoteId: 'name' });
+      map.addSource('areas', { type: 'geojson', data: ov.areas, promoteId: 'name' });
+      map.addSource('area-labels', { type: 'geojson', data: ov.areaLabels });
+      map.addSource('regions', { type: 'geojson', data: fc(CHICAGO_REGIONS.map(([name, lat, lon]) => pt(lon, lat, { name: name.toUpperCase() }))) });
+      map.addSource('locations', { type: 'geojson', data: fc([]), cluster: true, clusterRadius: 34, clusterMaxZoom: 5 });
+      map.addSource('hubs', { type: 'geojson', data: fc(HUBS.map(h => pt(h.lon, h.lat, { id: h.id }))) });
+      const fade = (a, b, from, to) => ['interpolate', ['linear'], ['zoom'], a, from, b, to];
+      const hovered = ['boolean', ['feature-state', 'hover'], false];
+      // countries with alumni (context): lifted a step lighter than other land with a thin light-orange edge, fading out as the streets come in
+      map.addLayer({ id: 'countries-fill', type: 'fill', source: 'countries', filter: ['in', ['get', 'name'], ['literal', []]],
+        paint: { 'fill-color': ['case', hovered, C.ink500, C.ink600], 'fill-opacity': fade(3, 6.5, 1, 0) } }, firstLabel);
+      map.addLayer({ id: 'countries-line', type: 'line', source: 'countries', filter: ['in', ['get', 'name'], ['literal', []]],
+        paint: { 'line-color': C.orange300, 'line-width': 1, 'line-opacity': fade(3, 6.5, .7, 0) } }, firstLabel);
+      // Chicago community areas
+      map.addLayer({ id: 'areas-fill', type: 'fill', source: 'areas', minzoom: 8.5,
+        paint: { 'fill-color': C.white, 'fill-opacity': ['case', hovered, .08, 0] } }, firstLabel);
+      map.addLayer({ id: 'areas-line', type: 'line', source: 'areas', minzoom: 8.5,
+        paint: { 'line-color': C.ink200, 'line-opacity': fade(8.5, 10, 0, .45), 'line-width': fade(10, 14, 1, 2) } }, firstLabel);
+      const text = (size, extra = {}) => ({ 'text-font': ['Noto Sans Medium'], 'text-size': size, ...extra });
+      const halo = { 'text-color': C.white, 'text-halo-color': INK, 'text-halo-width': 1.4 };
+      map.addLayer({ id: 'regions', type: 'symbol', source: 'regions', minzoom: 8.6, maxzoom: 11.5,
+        layout: { 'text-field': ['get', 'name'], ...text(12, { 'text-letter-spacing': .16 }) }, paint: { ...halo, 'text-color': C.ink200 } });
+      map.addLayer({ id: 'area-labels', type: 'symbol', source: 'area-labels', minzoom: 11.5,
+        layout: { 'text-field': ['get', 'name'], ...text(12, { 'text-max-width': 7 }) }, paint: { ...halo, 'text-color': C.ink200 } });
+      // alumni places: groups are navy with a light orange ring, single places solid orange
+      map.addLayer({ id: 'clusters', type: 'circle', source: 'locations', filter: ['has', 'point_count'],
+        paint: { 'circle-color': C.ink900, 'circle-radius': ['step', ['get', 'point_count'], 12, 3, 14, 6, 17], 'circle-stroke-color': C.orange300, 'circle-stroke-width': 2 } });
+      map.addLayer({ id: 'cluster-count', type: 'symbol', source: 'locations', filter: ['has', 'point_count'],
+        layout: { 'text-field': ['get', 'point_count_abbreviated'], ...text(12), 'text-allow-overlap': true }, paint: { 'text-color': C.white } });
+      map.addLayer({ id: 'loc', type: 'circle', source: 'locations', filter: ['!', ['has', 'point_count']],
+        paint: { 'circle-color': C.orange500, 'circle-radius': fade(2, 12, 5, 8), 'circle-stroke-color': C.white, 'circle-stroke-width': 2 } });
+      map.addLayer({ id: 'loc-label', type: 'symbol', source: 'locations', filter: ['!', ['has', 'point_count']], minzoom: 3,
+        layout: { 'text-field': ['get', 'label'], ...text(12), 'text-offset': [0, 1], 'text-anchor': 'top', 'text-optional': true }, paint: halo });
+      // hubs: white discs with an orange centre
+      map.addLayer({ id: 'hub-dot', type: 'circle', source: 'hubs', paint: { 'circle-color': C.white, 'circle-radius': 8, 'circle-stroke-color': INK, 'circle-stroke-width': 2 } });
+      map.addLayer({ id: 'hub-core', type: 'circle', source: 'hubs', paint: { 'circle-color': ORANGE, 'circle-radius': 3.5 } });
+
+      // name each Chicago site after the community area it sits in
+      setAreaOf(Object.fromEntries(LOCATIONS.filter(l => l.site).map(l => [l.id, ov.areas.features.find(f => inGeom([l.lon, l.lat], f.geometry))?.properties.name])));
+      ready.current = true; setTick(t => t + 1);
+    });
+
+    for (const h of HUBS) {
+      const tag = document.createElement('button');
+      tag.type = 'button'; tag.className = 'hubtag';
+      tag.addEventListener('click', () => focusHub(h));
+      new maplibregl.Marker({ element: tag, anchor: 'left', offset: [14, 0] }).setLngLat([h.lon, h.lat]).addTo(map);
+      hubEls.current[h.id] = tag;
+    }
+    const zoomClass = () => el.classList.toggle('far', map.getZoom() > 8.5);
+    map.on('zoom', zoomClass); zoomClass();
+    map.on('move', () => setTick(t => t + 1)); // keeps the callout attached to its place
+
+    // hover and tap for details
+    const LAYERS = ['clusters', 'loc', 'hub-dot', 'areas-fill', 'countries-fill'];
+    const hoverState = { src: null, id: null };
+    const setHover = (src, id) => {
+      if (hoverState.src === src && hoverState.id === id) return;
+      if (hoverState.src) map.setFeatureState({ source: hoverState.src, id: hoverState.id }, { hover: false });
+      Object.assign(hoverState, { src, id });
+      if (src) map.setFeatureState({ source: src, id }, { hover: true });
+    };
+    const describe = (f, lngLat) => {
+      if (f.layer.id === 'loc') return { kind: 'loc', key: 'l' + f.properties.id, loc: LOCATIONS[f.properties.id] };
+      if (f.layer.id === 'clusters') return { kind: 'cluster', key: 'c' + f.properties.cluster_id, n: f.properties.point_count, lngLat: f.geometry.coordinates };
+      if (f.layer.id === 'hub-dot') return { kind: 'hub', key: 'h' + f.properties.id, hub: hubById[f.properties.id] };
+      if (f.layer.id === 'areas-fill') return { kind: 'area', key: 'a' + f.properties.name, name: f.properties.name, lngLat: [lngLat.lng, lngLat.lat] };
+      return { kind: 'country', key: 'k' + f.properties.name, name: f.properties.name, lngLat: [lngLat.lng, lngLat.lat] };
+    };
+    const at = e => ready.current ? map.queryRenderedFeatures(e.point, { layers: LAYERS }).filter(f => f.layer.id !== 'countries-fill' || map.getZoom() < 6.5)[0] : null;
+    map.on('mousemove', e => {
+      const f = at(e), d = f && describe(f, e.lngLat);
+      map.getCanvas().style.cursor = f ? 'pointer' : '';
+      setHover(f && (f.layer.id === 'areas-fill' || f.layer.id === 'countries-fill') ? f.source : null, f?.id);
+      // points keep their callout still; areas and countries let it follow the pointer
+      setPick(p => p?.pinned ? p : d && p?.key === d.key && !d.lngLat ? p : d);
+    });
+    map.on('mouseout', () => { setHover(null); setPick(p => p?.pinned ? p : null); });
+    map.on('click', async e => {
+      const f = at(e);
+      if (!f) { setPick(null); return; }
+      if (f.layer.id === 'clusters') {
+        const z = await map.getSource('locations').getClusterExpansionZoom(f.properties.cluster_id);
+        map.easeTo({ center: f.geometry.coordinates, zoom: z + .3 }); setPick(null); return;
+      }
+      if (f.layer.id === 'hub-dot') { focusHub(hubById[f.properties.id]); return; }
+      setPick({ ...describe(f, e.lngLat), pinned: true });
+    });
+    return () => map.remove();
+  }, []);
+
+  // filters → map
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!ready.current) return;
+    map.getSource('locations').setData(fc(shown.map(l => pt(l.lon, l.lat, { id: l.id, label: placeName(l, areaOf) }))));
+    const names = ['literal', countries.map(atlasName)];
+    map.setFilter('countries-fill', ['in', ['get', 'name'], names]);
+    map.setFilter('countries-line', ['in', ['get', 'name'], names]);
+    const siteAreas = ['literal', shown.filter(l => l.site).map(l => areaOf[l.id]).filter(Boolean)];
+    const isSite = ['in', ['get', 'name'], siteAreas], hovered = ['boolean', ['feature-state', 'hover'], false];
+    map.setPaintProperty('areas-fill', 'fill-color', ['case', isSite, ORANGE, C.white]);
+    map.setPaintProperty('areas-fill', 'fill-opacity', ['case', isSite, ['case', hovered, .75, .62], hovered, .08, 0]);
+    for (const h of HUBS) {
+      const n = shown.filter(l => l.hub === h.id).length;
+      hubEls.current[h.id].innerHTML = `${h.name}<b>${n}</b>`;
+      hubEls.current[h.id].setAttribute('aria-label', `${h.name} hub, ${plural(n, 'alumni location', 'alumni locations')}`);
+    }
+    setPick(null);
+  }, [shown, areaOf, ready.current]);
+
+  // the map stays mounted while the list shows; give it its size back on return
+  useEffect(() => {
+    if (view !== 'map' || page !== 'network' || !mapRef.current) return;
+    mapRef.current.resize();
+    if (!placed.current) home(mapRef.current, false);
+  }, [view, page]);
+  const goPage = p => { setPage(p); window.scrollTo(0, 0); };
+
+  // World view: the full map height, turned so the area right of the filter card is centred on Africa and Europe
+  function worldView(map = mapRef.current) {
+    const el = map.getContainer(), zoom = fitZoom(el.clientHeight), degPx = 512 * 2 ** zoom / 360;
+    const panel = wideRef.current ? 332 : 0;
+    return { center: [12 - panel / 2 / degPx, latOf((Y_TOP + Y_BOTTOM) / 2)], zoom };
+  }
+  function home(map = mapRef.current, animate = true) {
+    if (!map.getContainer().clientHeight) return; // hidden behind the apply page; placed once it shows
+    placed.current = true;
+    animate ? map.flyTo({ ...worldView(map), duration: 1400 }) : map.jumpTo(worldView(map));
+  }
+  function chicago() {
+    mapRef.current.fitBounds(CHICAGO_BOX, { padding: { top: 40, bottom: 80, left: wideRef.current ? 352 : 30, right: 40 }, duration: 2000 });
+  }
+  function goPlace(p) { if (!p) return; setPlace(p); setPick(null); p === 'world' ? home() : chicago(); }
+  function focusHub(h) {
+    setView('map');
+    if (h.id === 'chi') { goPlace('chicago'); return; }
+    setPlace('world');
+    mapRef.current.flyTo({ center: [h.lon, h.lat], zoom: Math.max(mapRef.current.getZoom(), 4.2), duration: 1600 });
+  }
+  function showOnMap(l) {
+    setView('map');
+    requestAnimationFrame(() => {
+      mapRef.current.resize();
+      mapRef.current.flyTo({ center: [l.lon, l.lat], zoom: l.site ? 12 : Math.max(mapRef.current.getZoom(), 6), duration: 1600 });
+      setPick({ kind: 'loc', key: 'l' + l.id, loc: l, pinned: true });
+    });
+  }
+  const clear = () => { setCohort('all'); setFocus([]); };
+  const filtered = cohort !== 'all' || focus.length > 0;
+
+  /* ----- pieces ----- */
+  const strong = n => html`<${Box} component="b" sx=${{ color: 'text.primary', fontWeight: 700 }}>${n}<//>`;
+  const status = html`<${Meta} sx=${{ fontSize: 14 }} aria-live="polite">
+    ${strong(shown.length)} alumni ${shown.length === 1 ? 'location' : 'locations'} in ${strong(countries.length)} ${countries.length === 1 ? 'country' : 'countries'}${wide ? ', supported by three regional hubs.' : ''}<//>`;
+  const viewToggle = html`<${ToggleButtonGroup} exclusive fullWidth=${wide} size="small" value=${view} onChange=${(e, v) => v && setView(v)} aria-label="Show alumni as"
+      sx=${wide ? {} : { flex: 'none' }}>
+    <${ToggleButton} value="map">Map<//><${ToggleButton} value="list">List<//><//>`;
+  const cohortSelect = html`<${TextField} select fullWidth size="small" id="cohort" label="Cohort" value=${cohort} onChange=${e => setCohort(e.target.value)}
+    SelectProps=${{ MenuProps: { PaperProps: { elevation: 8, sx: { borderRadius: '10px' } } } }}>
+    ${COHORTS.map(([id, label]) => html`<${MenuItem} key=${id} value=${id} sx=${{ fontSize: 14 }}>${label}<//>`)}<//>`;
+
+  // Focus areas: a row of filter chips along the bottom of the map (or above the cards in the list)
+  const focusRow = overlay => html`<${Box} role="group" aria-label="Filter by focus area" sx=${{
+      display: 'flex', alignItems: 'center', gap: 1, overflowX: 'auto', scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' },
+      ...(overlay ? { position: 'absolute', zIndex: 2, left: 16, right: 16, bottom: 16, p: 1, borderRadius: '12px', bgcolor: 'rgba(10,18,22,.78)', backdropFilter: 'blur(8px)',
+        boxShadow: `inset 0 0 0 1px ${C.ink600}` } : {}) }}>
+    <${Typography} sx=${{ flex: 'none', fontSize: 13, fontWeight: 600, color: C.ink200, pl: overlay ? 1 : 0, pr: .5 }}>Focus<//>
+    ${FOCUS.map(([id, label]) => {
+      const on = focus.includes(id);
+      return html`<${Chip} key=${id} label=${label} clickable aria-pressed=${on} onClick=${() => setFocus(f => on ? f.filter(x => x !== id) : [...f, id])}
+        sx=${{ flex: 'none', height: 34, borderRadius: '8px', fontSize: 13, fontWeight: 600, '& .MuiChip-label': { px: 1.5 },
+          ...(on ? { bgcolor: C.orange500, color: C.white, '&:hover': { bgcolor: C.orange600 } }
+                 : { bgcolor: 'transparent', color: C.white, boxShadow: `inset 0 0 0 1px ${C.ink500}`, '&:hover': { bgcolor: C.ink700 } }) }} />`;
+    })}
+    ${focus.length > 0 && html`<${Button} size="small" onClick=${() => setFocus([])} sx=${{ flex: 'none', color: C.ink200, fontWeight: 600, '&:hover': { bgcolor: C.ink700 } }}>Clear<//>`}
+  <//>`;
+
+  const panel = html`<${Paper} id="panel" sx=${{
+      p: wide ? 3 : 2, borderRadius: '12px', boxShadow: '0 8px 24px rgba(0,0,0,.28)', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: 2.5, minWidth: 0,
+      ...(view === 'map' && wide ? { position: 'absolute', zIndex: 2, top: 16, left: 16, width: 316, maxHeight: 'calc(100% - 100px)', overflowY: 'auto' } : {}),
+      ...(view === 'list' && wide ? { position: 'sticky', top: 16, mt: 2, ml: 2, width: 316 } : {}),
+    }}>
+    ${wide ? html`<${Box}>
+        <${Typography} component="h1" sx=${{ fontSize: 22, fontWeight: 800, lineHeight: 1.25, letterSpacing: '-.01em', mb: .75 }}>Goldin alumni network<//>
+        ${status}
+      <//>` : html`<${Stack} direction="row" alignItems="center" justifyContent="space-between" gap=${1.5}>${status}${viewToggle}<//>`}
+    ${wide && viewToggle}
+    ${wide && html`<${Box}>
+      <${Typography} sx=${{ fontSize: 13, fontWeight: 700, color: 'text.secondary', mb: .5 }}>Regional hubs<//>
+      <${List} disablePadding>
+        ${HUBS.map((h, i) => html`<${ListItemButton} key=${h.id} onClick=${() => focusHub(h)}
+            sx=${{ px: 1, mx: -1, py: 1, borderRadius: '8px', borderTop: i ? `1px solid ${C.mist100}` : 0, gap: 1.5, '&:hover': { bgcolor: C.mist50 } }}>
+          <${Box} sx=${{ minWidth: 0 }}>
+            <${Typography} sx=${{ fontSize: 15, fontWeight: 700, lineHeight: 1.3 }}>${h.name}<//>
+            <${Meta}>${h.role}<//>
+          <//>
+          <${Typography} sx=${{ ml: 'auto', fontSize: 15, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }} aria-label=${plural(shown.filter(l => l.hub === h.id).length, 'location', 'locations')}>
+            ${shown.filter(l => l.hub === h.id).length}<//>
+        <//>`)}
+      <//>
+    <//>`}
+    ${cohortSelect}
+    ${filtered && html`<${Button} size="small" onClick=${clear} sx=${{ justifySelf: 'start', mt: -1, px: 1, color: C.orange600 }}>Clear all filters<//>`}
+  <//>`;
+
+  const map = mapRef.current;
+  let callout = null;
+  if (pick && map && view === 'map') {
+    const ll = pick.loc ? [pick.loc.lon, pick.loc.lat] : pick.hub ? [pick.hub.lon, pick.hub.lat] : pick.lngLat;
+    const p = map.project(ll), below = p.y < 240;
+    const title = t => html`<${Typography} sx=${{ fontSize: 17, fontWeight: 800, lineHeight: 1.3 }}>${t}<//>`;
+    const rows = list => html`<${Box} sx=${{ mt: 1.5, borderTop: `1px solid ${C.mist100}` }}>${list.map(l => html`
+      <${Stack} key=${l.id} direction="row" justifyContent="space-between" alignItems="center" gap=${2} sx=${{ py: .75, borderBottom: `1px solid ${C.mist100}` }}>
+        <${Typography} sx=${{ fontSize: 14, fontWeight: 600 }}>${placeName(l, areaOf)}<//><${Tag}>${FOCUS_NAME[l.focus]}<//>
+      <//>`)}<//>`;
+    let body;
+    if (pick.kind === 'loc') {
+      const l = pick.loc;
+      body = html`${title(placeName(l, areaOf))}
+        <${Meta}>${placeSub(l)} · ${COHORT_NAME[l.cohort]}<//>
+        <${Stack} direction="row" gap=${.75} sx=${{ mt: 1.5 }}><${Tag}>${FOCUS_NAME[l.focus]}<//><//>
+        <${Meta} sx=${{ mt: 1.5, fontSize: 12 }}>Supported by the ${hubById[l.hub].name} hub<//>`;
+    } else if (pick.kind === 'cluster') {
+      body = html`${title(plural(pick.n, 'alumni location', 'alumni locations'))}<${Meta}>Click to zoom in<//>`;
+    } else if (pick.kind === 'hub') {
+      body = html`${title(pick.hub.name)}<${Meta}>${pick.hub.role} · ${plural(shown.filter(l => l.hub === pick.hub.id).length, 'location', 'locations')}<//>`;
+    } else if (pick.kind === 'area') {
+      const here = shown.filter(l => l.site && areaOf[l.id] === pick.name);
+      body = html`${title(pick.name)}<${Meta}>Chicago community area<//>
+        ${here.length > 0 && html`<${Stack} direction="row" gap=${.75} flexWrap="wrap" sx=${{ mt: 1.5 }}><${Tag} tone="orange">Peace Fellows site<//>${here.map(l => html`<${Tag} key=${l.id}>${FOCUS_NAME[l.focus]}<//>`)}<//>`}`;
+    } else {
+      const here = shown.filter(l => atlasName(l.country) === pick.name), pct = Math.round(here.length / Math.max(1, shown.length) * 100);
+      body = html`${title(here[0]?.country || pick.name)}
+        <${Meta}>${plural(here.length, 'alumni location', 'alumni locations')}${here[0] ? ` · ${hubById[here[0].hub].name} hub` : ''}<//>
+        <${Stack} direction="row" justifyContent="space-between" sx=${{ mt: 1.5, mb: .75 }}><${Meta} sx=${{ fontSize: 12 }}>Share of the network<//><${Typography} sx=${{ fontSize: 12, fontWeight: 700 }}>${pct}%<//><//>
+        <${LinearProgress} variant="determinate" value=${pct} aria-label="Share of the network" sx=${{ height: 6, borderRadius: 3, bgcolor: C.mist100 }} />
+        ${rows(here)}`;
+    }
+    callout = html`<${Paper} role="status" sx=${{
+        position: 'absolute', left: Math.round(p.x), top: Math.round(p.y), zIndex: 3, pointerEvents: pick.pinned ? 'auto' : 'none',
+        transform: below ? 'translate(-50%, 18px)' : 'translate(-50%, calc(-100% - 16px))',
+        width: 'max-content', minWidth: 220, maxWidth: 300, p: 2, borderRadius: '10px', boxShadow: '0 12px 32px rgba(0,0,0,.4)',
+      }}>${body}<//>`;
+  }
+
+  const ctrl = { bgcolor: C.white, borderRadius: '10px', p: '3px', boxShadow: '0 6px 18px rgba(0,0,0,.28)' };
+  const mapFrame = html`<${Box} sx=${{ position: 'relative', height: wide ? 'max(560px, calc(100vh - 64px - 48px - 36px))' : '70vh', minHeight: 440,
+      borderRadius: '12px', overflow: 'hidden', boxShadow: `inset 0 0 0 1px ${C.ink700}`, bgcolor: '#0B151A', display: view === 'map' ? 'block' : 'none' }}>
+    <${Box} ref=${mapEl} sx=${{ width: '100%', height: '100%' }} role="region" aria-label="Map of alumni locations. Drag to explore; hold Shift and scroll to zoom." />
+    <${Stack} direction="row" gap=${1} sx=${{ position: 'absolute', top: 16, right: 16, zIndex: 2 }}>
+      <${ToggleButtonGroup} exclusive size="small" value=${place} onChange=${(e, v) => goPlace(v)} aria-label="Map area" sx=${{ ...ctrl, bgcolor: C.white }}>
+        <${ToggleButton} value="world">World<//><${ToggleButton} value="chicago">Chicago<//>
+      <//>
+      <${Paper} sx=${{ ...ctrl, display: 'flex', gap: '3px' }}>
+        <${IconButton} size="small" aria-label="Zoom in" onClick=${() => map?.zoomIn()} sx=${{ color: C.slate700, borderRadius: '8px', width: 32, height: 32, '&:hover': { bgcolor: C.mist100 } }}><${Icon} d="M8 3v10M3 8h10" /><//>
+        <${IconButton} size="small" aria-label="Zoom out" onClick=${() => map?.zoomOut()} sx=${{ color: C.slate700, borderRadius: '8px', width: 32, height: 32, '&:hover': { bgcolor: C.mist100 } }}><${Icon} d="M3 8h10" /><//>
+      <//>
+    <//>
+    ${focusRow(true)}
+    ${callout}
+  <//>`;
+  const mapNotes = view === 'map' && html`<${Stack} direction=${{ xs: 'column', sm: 'row' }} justifyContent="space-between" gap=${.5} sx=${{ fontSize: 12, color: C.ink300, mt: -1.5 }}>
+    <span>Drag to explore. Hold Shift and scroll to zoom.</span>
+    <span>Map data © <${Link} href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener" color="inherit">OpenStreetMap<//> contributors · <${Link} href="https://protomaps.com" target="_blank" rel="noopener" color="inherit">Protomaps<//></span>
+  <//>`;
+
+  const cards = html`<${Box} sx=${{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 2, alignContent: 'start', minWidth: 0 }}>
+    ${shown.length === 0 && html`<${Paper} sx=${{ p: 3, borderRadius: '12px', gridColumn: '1 / -1' }}>
+      <${Typography} sx=${{ fontWeight: 800, fontSize: 18 }}>No alumni locations match these filters<//>
+      <${Meta} sx=${{ mt: .5 }}>Try another cohort or focus area.<//>
+      <${Button} variant="contained" size="small" onClick=${clear} sx=${{ mt: 2 }}>Clear all filters<//><//>`}
+    ${[...shown].sort((a, b) => a.country.localeCompare(b.country) || placeName(a, areaOf).localeCompare(placeName(b, areaOf))).map(l => html`
+      <${Card} key=${l.id} component="article" sx=${{ display: 'flex', flexDirection: 'column' }}>
+        <${CardContent} sx=${{ p: 2.5, display: 'grid', gap: .5, justifyItems: 'start', flex: 1 }}>
+          <${Tag} tone="orange">${COHORT_NAME[l.cohort]}<//>
+          <${Typography} component="h3" sx=${{ fontSize: 20, fontWeight: 800, lineHeight: 1.25, mt: 1.5 }}>${placeName(l, areaOf)}<//>
+          <${Meta} sx=${{ fontSize: 14 }}>${placeSub(l)}<//>
+          <${Box} sx=${{ mt: 1.5 }}><${Tag}>${FOCUS_NAME[l.focus]}<//><//>
+        <//>
+        <${CardActions} sx=${{ px: 2.5, py: 1.5, borderTop: `1px solid ${C.mist100}`, justifyContent: 'space-between' }}>
+          <${Meta}>${hubById[l.hub].name} hub<//>
+          <${Button} size="small" onClick=${() => showOnMap(l)} sx=${{ color: C.orange600, fontWeight: 700, mr: -1 }}>View on map<//>
+        <//>
+      <//>`)}
+  <//>`;
+
+  return html`
+    <${AppBar} position="static" elevation=${0} sx=${{ bgcolor: '#191B1E', color: C.white }}>
+      <${Toolbar} sx=${{ ...gutter, maxWidth: 1280, width: '100%', mx: 'auto', justifyContent: 'space-between' }}>
+        <${Link} href="https://goldininstitute.org/" target="_blank" rel="noopener" underline="none" color="inherit" sx=${{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+          <svg viewBox="0 0 40 40" width="32" height="32" aria-hidden="true"><path d="M33 12.5A16 16 0 1 0 36 22" fill="none" stroke=${ORANGE} stroke-width="5.5" stroke-linecap="round"/><path d="M19 22h17" stroke=${ORANGE} stroke-width="5.5" stroke-linecap="round"/></svg>
+          <${Typography} sx=${{ fontWeight: 900, fontSize: 13, letterSpacing: '.02em', lineHeight: 1.05, textTransform: 'uppercase' }}>Goldin<br/>Institute<//>
+        <//>
+        <${Button} variant="contained" href="https://goldininstitute.org/donate/" target="_blank" rel="noopener" sx=${{ fontWeight: 800, letterSpacing: '.08em', px: 2.75 }}>Donate<//>
+      <//>
+    <//>
+    ${page === 'apply' && html`<${ApplyPage} wide=${wide} onBack=${() => goPage('network')} />`}
+    <${Box} component="main" sx=${{ ...gutter, py: 3, display: page === 'network' ? 'block' : 'none' }}>
+      <${Box} sx=${{ maxWidth: 1240, mx: 'auto', position: 'relative', display: 'grid', gap: wide ? 3 : 1.5, alignItems: 'start',
+          gridTemplateColumns: wide && view === 'list' ? '332px minmax(0, 1fr)' : 'minmax(0, 1fr)' }}>
+        ${panel}
+        ${mapFrame}
+        ${mapNotes}
+        ${view === 'list' && html`<${Box} sx=${{ minWidth: 0, pt: wide ? 1 : 0 }}>
+          <${Box} sx=${{ position: 'sticky', top: 0, zIndex: 3, bgcolor: C.ink900, py: 1, mb: 1 }}>${focusRow(false)}<//>
+          ${cards}
+        <//>`}
+      <//>
+      <${JoinSection} wide=${wide} onApply=${() => goPage('apply')} />
+    <//>
+    <${Box} component="footer" sx=${{ ...gutter, bgcolor: C.ink950, color: C.ink300, fontSize: 13, textAlign: 'center', py: 3.5, mt: 3 }}>
+      © 2026 Goldin Institute · <${Link} href="https://goldininstitute.org/" target="_blank" rel="noopener" underline="hover" sx=${{ color: C.white, fontWeight: 700 }}>goldininstitute.org<//>
+      <${Typography} sx=${{ fontSize: 12, mt: .75, color: C.ink500 }}>Prototype. Alumni locations and focus areas are sample data.<//>
+    <//>`;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(html`<${ThemeProvider} theme=${theme}><${CssBaseline} /><${App} /><//>`);
+</script>
+
+</html>
