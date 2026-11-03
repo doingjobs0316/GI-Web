@@ -8,3 +8,7 @@ Alumni locations and focus areas are sample data. Map data © OpenStreetMap cont
 - `index.html` — the page
 - `overlays.json` — country outlines and Chicago community areas
 - `tiles/`, `glyphs/` — basemap tiles and label fonts, stored as base64 text
+
+## Goldin Fellows Map (`fellows-map/`)
+
+The Chicago-only polish version, in progress. Built output of the separate `goldin-fellows-map` project. All organizations and gems are samples.
